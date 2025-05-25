@@ -129,7 +129,7 @@ export function setupScrollObservers(animator) {
     });
   }, {
     threshold: [0.05, 0.5, 0.8], // Observe at multiple thresholds
-    rootMargin: "0px 0px 300px 0px" // Extend bottom margin to detect earlier
+    rootMargin: "0px 0px 0px 0px" // No extension to prevent viewport overrun
   });
   
   // Create a combined sorted array of elements
@@ -235,8 +235,8 @@ export function checkFollowingMessages(animator, currentIndex) {
       const rect = nextMsg.getBoundingClientRect();
       const distanceFromViewport = rect.top - window.innerHeight;
       
-      // Queue if within generous range
-      if (distanceFromViewport < 800) { // Very generous lookahead for end of page
+      // Queue only if in viewport
+      if (distanceFromViewport < 0) { // Only queue elements in viewport
         if (nextMsg.classList.contains('hidden') && 
             !animator.animationQueue.some(item => item.element === nextMsg) && 
             !animator.animationFailedMessages.includes(nextMsg)) {

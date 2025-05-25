@@ -1,0 +1,364 @@
+/* Chat animation styles */
+
+/* Message visibility animations */
+.message.hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: none;
+  pointer-events: none;
+  /* Prevent layout shifts */
+  contain: layout;
+  backface-visibility: hidden;
+}
+
+.message.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              transform var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  pointer-events: auto;
+  /* Prevent layout shifts */
+  contain: layout;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  --avatar-size: 80px;
+  --avatar-offset: -96px;
+  --speaker-color: var(--assistant-color);
+  --speaker-color-light: var(--assistant-color-light);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  background-color: var(--background-color);
+  border: 2px solid var(--speaker-color);
+  border-radius: 12px;
+  padding: 0;
+  margin-bottom: 0;
+  margin-top: 0;
+  position: relative;
+  min-width: 60px;
+  min-height: 0;
+  height: 0;
+  opacity: 0;
+  overflow: visible !important; /* Ensure caption is visible */
+  pointer-events: none;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
+              height var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
+              padding var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
+              margin var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
+              transform var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transform-origin: left center;
+  transform: scale(0.8);
+  z-index: 2;
+  will-change: transform, opacity, height, padding, margin;
+  /* Prevent layout shifts */
+  contain: layout;
+  backface-visibility: hidden;
+}
+
+/* Speaker caption for typing indicator */
+.typing-indicator .speaker-caption {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--speaker-color);
+  margin-right: 8px;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* When visible, ensure caption is properly displayed */
+.typing-indicator.visible .speaker-caption {
+  opacity: 1;
+  display: inline-block;
+}
+
+/* Simplified speaker-specific styling that uses centralized variables */
+/* User typing indicator appears on the right side */
+.typing-indicator[data-speaker="user"],
+.typing-indicator[data-color-key="user"] {
+  --speaker-color: var(--user-color);
+  --speaker-color-light: var(--user-color-light);
+  align-self: flex-end;
+  transform-origin: right center;
+}
+
+/* Set speaker colors using centralized CSS variables */
+.typing-indicator[data-speaker="assistant"],
+.typing-indicator[data-speaker="agent"],
+.typing-indicator[data-speaker="test"],
+.typing-indicator[data-color-key="assistant"] {
+  --speaker-color: var(--assistant-color);
+  --speaker-color-light: var(--assistant-color-light);
+}
+
+.typing-indicator[data-speaker="speakerc"],
+.typing-indicator[data-color-key="speakerc"] {
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
+}
+
+.typing-indicator[data-speaker="speakerd"],
+.typing-indicator[data-color-key="speakerd"] {
+  --speaker-color: var(--speakerd-color);
+  --speaker-color-light: var(--speakerd-color-light);
+}
+
+.typing-indicator[data-speaker="speakere"],
+.typing-indicator[data-color-key="speakere"] {
+  --speaker-color: var(--speakere-color);
+  --speaker-color-light: var(--speakere-color-light);
+}
+
+.typing-indicator[data-speaker="speakerf"],
+.typing-indicator[data-color-key="speakerf"] {
+  --speaker-color: var(--speakerf-color);
+  --speaker-color-light: var(--speakerf-color-light);
+}
+
+.typing-indicator[data-speaker="speakerg"],
+.typing-indicator[data-color-key="speakerg"] {
+  --speaker-color: var(--speakerg-color);
+  --speaker-color-light: var(--speakerg-color-light);
+}
+
+.typing-indicator[data-speaker="speakerh"],
+.typing-indicator[data-color-key="speakerh"] {
+  --speaker-color: var(--speakerh-color);
+  --speaker-color-light: var(--speakerh-color-light);
+}
+
+.typing-indicator[data-speaker="speakeri"],
+.typing-indicator[data-color-key="speakeri"] {
+  --speaker-color: var(--speakeri-color);
+  --speaker-color-light: var(--speakeri-color-light);
+}
+
+.typing-indicator[data-speaker="speakerj"],
+.typing-indicator[data-color-key="speakerj"] {
+  --speaker-color: var(--speakerj-color);
+  --speaker-color-light: var(--speakerj-color-light);
+}
+
+.typing-indicator[data-speaker="speakerk"],
+.typing-indicator[data-color-key="speakerk"] {
+  --speaker-color: var(--speakerk-color);
+  --speaker-color-light: var(--speakerk-color-light);
+}
+
+.typing-indicator[data-speaker="speakerl"],
+.typing-indicator[data-color-key="speakerl"] {
+  --speaker-color: var(--speakerl-color);
+  --speaker-color-light: var(--speakerl-color-light);
+}
+
+.typing-indicator[data-speaker="random"] {
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
+}
+
+.typing-indicator[data-speaker="generic-speaker"],
+.typing-indicator[data-color-key="generic"] {
+  --speaker-color: var(--generic-color);
+  --speaker-color-light: var(--generic-color-light);
+}
+
+/* Remove legacy classes that duplicate functionality */
+/* Typing indicator dot styles */
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  margin: 0 3px;
+  background-color: var(--speaker-color);
+  border-radius: 50%;
+  display: inline-block;
+  opacity: 0.8;
+  transform-origin: center;
+}
+
+/* Basic dot styling for speaker types */
+.typing-indicator.user-typing span {
+  background-color: var(--user-color);
+}
+
+.typing-indicator.speakerC-typing span {
+  background-color: var(--accentC-color);
+}
+
+.typing-indicator.speakerD-typing span {
+  background-color: var(--accentD-color);
+}
+
+.typing-indicator.speakerE-typing span {
+  background-color: var(--accentE-color);
+}
+
+.typing-indicator.generic-speaker-typing span {
+  background-color: var(--generic-color);
+}
+
+.typing-indicator.agent-typing span {
+  background-color: var(--assistant-color);
+}
+
+.typing-indicator.random-typing span {
+  background-color: var(--accentC-color);
+}
+
+/* Completely new approach that uses transform rotate instead of height */
+.typing-indicator span {
+  transform-origin: center;
+  animation: typing-wave 1.5s ease-in-out infinite;
+  animation-play-state: running !important;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* All dots same duration regardless of message size */
+.typing-indicator[data-size="medium"] span,
+.typing-indicator[data-size="large"] span {
+  animation-duration: 1.5s;
+}
+
+/* Custom positioned typing indicators */
+.typing-indicator.custom-left {
+  transform-origin: left center;
+}
+
+.typing-indicator.custom-right {
+  transform-origin: right center;
+}
+
+/* Wave-like animation keyframes */
+@keyframes typing-wave {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  40% {
+    transform: scale(1.7);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+/* Pulsing animation for speaker icons */
+@keyframes pulse {
+  0% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0.4);
+  }
+  
+  70% {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 0 0 6px rgba(var(--accent-color-rgb), 0);
+  }
+  
+  100% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0);
+  }
+}
+
+.message.speaking::before {
+  animation: pulse 2s infinite;
+  opacity: 1;
+}
+
+/* Replace the bounce animation with pulse-grow */
+@keyframes pulse-grow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  40% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.2);
+    opacity: 0.9;
+  }
+}
+
+/* Update the bounce-rotate animation to pulse-grow-rotate */
+@keyframes pulse-grow-rotate {
+  0% {
+    transform: scale(1);
+  }
+  
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  
+  100% {
+    transform: scale(1);
+  }
+}
+
+.typing-indicator.visible {
+  opacity: 1;
+  height: auto;
+  min-height: 36px;
+  padding: 8px 14px;
+  margin-bottom: 20px;
+  margin-top: 14px;
+  transform: scale(1);
+  display: flex;
+  align-items: center;
+}
+
+.typing-indicator:not(.visible) {
+  height: 0;
+  min-height: 0;
+  padding: 0;
+  margin-bottom: 0;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* User typing indicator positioning */
+.typing-indicator[data-speaker="user"].visible {
+  transform: scale(1) translateX(-40px);
+}
+
+/* Ensure user typing indicator fades out in the same position */
+.typing-indicator[data-speaker="user"]:not(.visible) {
+  transform: scale(0.8) translateX(-40px);
+}
+
+/* All other speakers typing indicator positioning */
+.typing-indicator:not([data-speaker="user"]).visible {
+  transform: scale(1) translateX(40px);
+}
+
+/* Ensure other typing indicators fade out in the same position */
+.typing-indicator:not([data-speaker="user"]):not(.visible) {
+  transform: scale(0.8) translateX(40px);
+}
+
+/* Completely prevent any transform for empty icons in all states */
+.typing-indicator[data-speaker-icon="empty"] {
+  transform: scale(1) !important;
+}
+
+.typing-indicator[data-speaker-icon="empty"]:not(.visible) {
+  transform: scale(0.8) !important;
+}

@@ -1,0 +1,347 @@
+/* Chat UI components */
+
+/* Section header styling */
+.chat-section-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 25px 0 15px;
+  padding: 8px 12px;
+  background-color: transparent;
+  border-radius: 4px;
+  border: none;
+  transition: background-color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Collapsed header style */
+.chat-section-header.collapsed {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Header animation states */
+.chat-section-header.header-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: none;
+}
+
+.chat-section-header.header-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              transform var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
+              background-color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Header levels styling */
+.chat-section-header[data-level="2"],
+.chat-section-header[data-level="3"],
+.chat-section-header[data-level="4"] {
+  width: 100%;
+  margin-left: 0;
+}
+
+.chat-section-header[data-level="2"] .header-content {
+  font-size: 1.2rem;
+}
+
+.chat-section-header[data-level="3"] .header-content {
+  font-size: 1.1rem;
+}
+
+.chat-section-header[data-level="4"] .header-content {
+  font-size: 1rem;
+}
+
+.chat-section-header:hover {
+  background-color: var(--accent-color-light);
+}
+
+/* Toggle button for sections */
+.section-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  padding: 0;
+  color: var(--accent-color);
+}
+
+.section-toggle:hover {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.section-toggle:focus {
+  outline: none;
+}
+
+.section-toggle .toggle-icon {
+  width: 32px;
+  height: 32px;
+  display: block;
+  transition: transform var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transform: rotate(0deg);
+  fill: currentColor;
+}
+
+.section-toggle[aria-expanded="false"] .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.header-content {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+}
+
+.header-content h2, 
+.header-content h3, 
+.header-content h4 {
+  margin: 0;
+  padding: 0;
+  color: var(--accent-color);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chat section container */
+.chat-section {
+  transition: max-height var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              opacity var(--hover-transition-duration, 0.2s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  overflow: visible;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  opacity: 1;
+  visibility: visible;
+  padding-left: 1rem;
+  border-left: none;
+  margin-bottom: 1rem;
+}
+
+/* Root-level sections should not have indentation */
+.chat-container > .chat-section {
+  padding-left: 0;
+  border-left: none;
+}
+
+.chat-section.collapsed {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  border-left: none;
+}
+
+/* Speaker icons - data-driven approach */
+.message {
+  --avatar-size: 80px;
+  --avatar-offset: -96px;
+  --speaker-color: var(--generic-color);
+  --speaker-color-light: var(--generic-color-light);
+  position: relative; /* Needed for absolute positioning of icon */
+}
+
+/* Simplified speaker color assignment using centralized variables */
+/* Base speaker mappings with combined selectors */
+.message[data-speaker="user"],
+.message[data-color-key="user"] {
+  --speaker-color: var(--user-color);
+  --speaker-color-light: var(--user-color-light);
+}
+
+.message[data-speaker="agent"],
+.message[data-speaker="assistant"],
+.message[data-speaker="test"],
+.message[data-color-key="assistant"] {
+  --speaker-color: var(--assistant-color);
+  --speaker-color-light: var(--assistant-color-light);
+}
+
+.message[data-speaker="speakerc"],
+.message[data-color-key="speakerc"] {
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
+}
+
+.message[data-speaker="speakerd"],
+.message[data-color-key="speakerd"] {
+  --speaker-color: var(--speakerd-color);
+  --speaker-color-light: var(--speakerd-color-light);
+}
+
+.message[data-speaker="speakere"],
+.message[data-color-key="speakere"] {
+  --speaker-color: var(--speakere-color);
+  --speaker-color-light: var(--speakere-color-light);
+}
+
+.message[data-speaker="speakerf"],
+.message[data-color-key="speakerf"] {
+  --speaker-color: var(--speakerf-color);
+  --speaker-color-light: var(--speakerf-color-light);
+}
+
+.message[data-speaker="speakerg"],
+.message[data-color-key="speakerg"] {
+  --speaker-color: var(--speakerg-color);
+  --speaker-color-light: var(--speakerg-color-light);
+}
+
+.message[data-speaker="speakerh"],
+.message[data-color-key="speakerh"] {
+  --speaker-color: var(--speakerh-color);
+  --speaker-color-light: var(--speakerh-color-light);
+}
+
+.message[data-speaker="speakeri"],
+.message[data-color-key="speakeri"] {
+  --speaker-color: var(--speakeri-color);
+  --speaker-color-light: var(--speakeri-color-light);
+}
+
+.message[data-speaker="speakerj"],
+.message[data-color-key="speakerj"] {
+  --speaker-color: var(--speakerj-color);
+  --speaker-color-light: var(--speakerj-color-light);
+}
+
+.message[data-speaker="speakerk"],
+.message[data-color-key="speakerk"] {
+  --speaker-color: var(--speakerk-color);
+  --speaker-color-light: var(--speakerk-color-light);
+}
+
+.message[data-speaker="speakerl"],
+.message[data-color-key="speakerl"] {
+  --speaker-color: var(--speakerl-color);
+  --speaker-color-light: var(--speakerl-color-light);
+}
+
+.message[data-speaker="random"] {
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
+}
+
+.message[data-color-key="generic"] {
+  --speaker-color: var(--generic-color);
+  --speaker-color-light: var(--generic-color-light);
+}
+
+/* Default generic color for unknown speakers */
+.message:not([data-color-key]):not([data-speaker]) {
+  --speaker-color: var(--generic-color);
+  --speaker-color-light: var(--generic-color-light);
+}
+
+/* Direct text styling (for <<>> empty speaker tags) */
+.message[data-speaker="direct-text"] {
+  width: 100%;
+  max-width: 100%;
+  margin: 0.5rem auto;
+  align-self: center;
+  background-color: transparent;
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 4px 12px;
+  --speaker-color: transparent;
+  --speaker-color-light: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hide the circular avatar background completely */
+.message[data-speaker="direct-text"]::after {
+  display: none;
+}
+
+/* Hide the avatar icon */
+.message[data-speaker="direct-text"]::before {
+  display: none;
+}
+
+/* Add a separate hover effect element */
+.message[data-speaker="direct-text"] .hover-overlay {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(144, 144, 144, 0.08);
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Keep hover effect for direct-text and also add selected state */
+.message[data-speaker="direct-text"]:hover .hover-overlay,
+.message[data-speaker="direct-text"].selected .hover-overlay {
+  opacity: 1;
+}
+
+.message[data-speaker="direct-text"] .content {
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  color: var(--text-color);
+  font-style: normal;
+  opacity: 1;
+}
+
+/* Chat message components */
+
+/* Expand toggle animation */
+.message .arrow-container {
+  transition: transform var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transform: rotate(0deg);
+}
+
+.message.collapsed .arrow-container {
+  transform: rotate(-90deg);
+}
+
+/* Collapsed content */
+.message .collapsible-content {
+  transition: max-height var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              opacity var(--hover-transition-duration, 0.2s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  overflow: hidden;
+  max-height: 5000px; /* Arbitrary large value */
+  opacity: 1;
+}
+
+/* Loading dots animation */
+.loading-dots {
+  display: inline-block;
+  position: relative;
+  width: 40px;
+  height: 12px;
+  opacity: 0.7;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Fix for border transition on processed agent messages */
+.message.visible[data-observed="processed"] {
+  transition: all var(--hover-transition-duration, 2s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+.message.visible[data-observed="processed"]:hover {
+  border-color: var(--speaker-color);
+} 

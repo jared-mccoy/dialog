@@ -4,6 +4,7 @@
  */
 
 import { getMarkdownHeaderLevel } from './parsing.js';
+import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor, shouldDisplaySpeakerName, getSpeakerDisplayName } from '../utils/speakerIconMapper.js';
 
 /**
  * Convert a markdown header to HTML
@@ -79,7 +80,7 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
   
   // Override the code renderer with our own implementation
   renderer.code = function(code, language) {
-    console.log("Code renderer received:", typeof code, code, "Language:", language);
+    debugLog("Code renderer received:", typeof code, code, "Language:", language);
     
     try {
       // Extract code content
@@ -89,7 +90,7 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
         // If no explicit language was provided but the object has a lang property, use it
         if (!language && code.lang) {
           language = code.lang;
-          console.log("Using language from object:", language);
+          debugLog("Using language from object:", language);
         }
       } else {
         codeText = code || '';
@@ -99,8 +100,8 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
       codeText = restoreSpacePlaceholders(codeText);
       
       // For debugging
-      console.log("After space restoration:", codeText.substring(0, 100) + "...");
-      console.log("Final language:", language);
+      debugLog("After space restoration:", codeText.substring(0, 100) + "...");
+      debugLog("Final language:", language);
       
       // Create language class and attribute
       const languageClass = language ? ` class="language-${language}"` : '';
@@ -198,8 +199,39 @@ export function processConversation(messages, renderer, getSpeakerClassFn) {
     const speakerClass = getSpeakerClassFn(msgData.speaker);
     messageEl.classList.add(speakerClass);
     
-    // Add a data attribute for the speaker
+    // Always add the visible class to ensure the message is displayed
+    messageEl.classList.add('visible');
+    
+    // Add a data attribute for the speaker's actual name
+    // This ensures CSS rules based on data-speaker will work correctly
     messageEl.setAttribute('data-speaker', msgData.speaker);
+    
+    // Add the speaker icon attribute based on appearance order
+    const speakerIcon = getSpeakerIcon(msgData.speaker);
+    messageEl.setAttribute('data-speaker-icon', speakerIcon);
+    
+    // Add the dynamic color key attribute based on appearance order
+    const colorKey = getSpeakerColor(msgData.speaker);
+    messageEl.setAttribute('data-color-key', colorKey);
+    
+    // Apply the speaker color as a direct style variable
+    if (colorKey) {
+      // Use a CSS variable format that falls back to the appropriate theme color
+      const colorVar = `var(--${colorKey}-color, var(--${colorKey === 'user' ? 'user' : colorKey === 'assistant' ? 'assistant' : 'accent' + colorKey.charAt(colorKey.length-1).toUpperCase()}-color))`;
+      messageEl.style.setProperty('--speaker-color', colorVar);
+    }
+    
+    // Add speaker name caption for custom speakers
+    if (shouldDisplaySpeakerName(msgData.speaker)) {
+      messageEl.setAttribute('data-display-speaker', 'true');
+      const displayName = getSpeakerDisplayName(msgData.speaker);
+      
+      // Create caption element
+      const caption = document.createElement('div');
+      caption.className = 'speaker-caption';
+      caption.textContent = displayName;
+      messageEl.appendChild(caption);
+    }
     
     // Apply custom layout if provided
     if (msgData.layout) {
@@ -423,33 +455,15 @@ export function enhanceCodeBlocks() {
  * @returns {string} CSS class name for the speaker
  */
 export function getSpeakerClass(speaker, speakers = []) {
-  // Special case for "random" speaker
-  if (speaker === 'random') {
-    return 'random';
-  }
+  // Return the actual speaker tag as the class
+  // This ensures we use the speaker tag from the markdown directly
   
-  // Check if this speaker has been seen before
-  const speakerIndex = speakers.indexOf(speaker);
-  
-  // If not found, add to speakers array
-  if (speakerIndex === -1) {
+  // Add speaker to tracking array if not seen before
+  if (speakers.indexOf(speaker) === -1) {
     speakers.push(speaker);
-    const newIndex = speakers.length - 1;
-    
-    // Return appropriate class based on the speaker's position
-    if (newIndex === 0) return 'user';      // First speaker (right side)
-    if (newIndex === 1) return 'assistant'; // Second speaker (left side)
-    if (newIndex === 2) return 'speakerC';  // Third speaker
-    if (newIndex === 3) return 'speakerD';  // Fourth speaker
-    if (newIndex === 4) return 'speakerE';  // Fifth speaker
-    return 'generic-speaker';               // Any other speakers
-  } else {
-    // Return class for existing speaker
-    if (speakerIndex === 0) return 'user';
-    if (speakerIndex === 1) return 'assistant';
-    if (speakerIndex === 2) return 'speakerC';
-    if (speakerIndex === 3) return 'speakerD';
-    if (speakerIndex === 4) return 'speakerE';
-    return 'generic-speaker';
   }
+  
+  // Return the speaker name directly - this avoids the position-based mapping
+  // that was causing the issue with hardcoded user/assistant classes
+  return speaker;
 } 
