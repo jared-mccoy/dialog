@@ -1,0 +1,241 @@
+/* Chat typography styles */
+
+/* Message text sizing */
+.message p, 
+.message li,
+.message span:not(h1, h2, h3, h4, h5, h6) {
+  font-size: 0.8rem;
+}
+
+/* Basic text elements */
+.message p {
+  margin: 0;
+}
+
+.message p + p {
+  margin-top: 8px;
+}
+
+.message ul, .message ol {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-left: 20px;
+}
+
+.message li {
+  margin-bottom: 4px;
+}
+
+/* Links in messages */
+.message p a {
+  text-decoration: none;
+  color: var(--text-color);
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Wiki link styling */
+.message p a[title*="wiki"],
+.message p a[href*="wiki"],
+.message p a:has(code) {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.95em;
+  white-space: nowrap;
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Speaker-specific wiki link styling */
+.user p a[title*="wiki"],
+.user p a[href*="wiki"],
+.user p a:has(code) {
+  background-color: var(--user-color-light);
+}
+
+.message[data-speaker="user"]:hover p a[title*="wiki"],
+.message[data-speaker="user"]:hover p a[href*="wiki"],
+.message[data-speaker="user"]:hover p a:has(code),
+.message[data-speaker="user"].selected p a[title*="wiki"],
+.message[data-speaker="user"].selected p a[href*="wiki"],
+.message[data-speaker="user"].selected p a:has(code) {
+  background-color: var(--user-color);
+}
+
+.assistant p a[title*="wiki"],
+.assistant p a[href*="wiki"],
+.agent p a[title*="wiki"],
+.agent p a[href*="wiki"],
+.assistant p a:has(code),
+.agent p a:has(code) {
+  background-color: var(--assistant-color-light);
+}
+
+.message[data-speaker="assistant"]:hover p a[title*="wiki"],
+.message[data-speaker="assistant"]:hover p a[href*="wiki"],
+.message[data-speaker="agent"]:hover p a[title*="wiki"],
+.message[data-speaker="agent"]:hover p a[href*="wiki"],
+.message[data-speaker="assistant"]:hover p a:has(code),
+.message[data-speaker="agent"]:hover p a:has(code),
+.message[data-speaker="assistant"].selected p a[title*="wiki"],
+.message[data-speaker="assistant"].selected p a[href*="wiki"],
+.message[data-speaker="agent"].selected p a[title*="wiki"],
+.message[data-speaker="agent"].selected p a[href*="wiki"],
+.message[data-speaker="assistant"].selected p a:has(code),
+.message[data-speaker="agent"].selected p a:has(code) {
+  background-color: var(--assistant-color);
+}
+
+.speakerC p a[title*="wiki"],
+.speakerC p a[href*="wiki"],
+.speakerC p a:has(code) {
+  background-color: var(--accentC-color-light);
+}
+
+.message.speakerC:hover p a[title*="wiki"],
+.message.speakerC:hover p a[href*="wiki"],
+.message.speakerC:hover p a:has(code),
+.message.speakerC.selected p a[title*="wiki"],
+.message.speakerC.selected p a[href*="wiki"],
+.message.speakerC.selected p a:has(code) {
+  background-color: var(--accentC-color);
+}
+
+.speakerD p a[title*="wiki"],
+.speakerD p a[href*="wiki"],
+.speakerD p a:has(code) {
+  background-color: var(--accentD-color-light);
+}
+
+.message.speakerD:hover p a[title*="wiki"],
+.message.speakerD:hover p a[href*="wiki"],
+.message.speakerD:hover p a:has(code),
+.message.speakerD.selected p a[title*="wiki"],
+.message.speakerD.selected p a[href*="wiki"],
+.message.speakerD.selected p a:has(code) {
+  background-color: var(--accentD-color);
+}
+
+.speakerE p a[title*="wiki"],
+.speakerE p a[href*="wiki"],
+.speakerE p a:has(code) {
+  background-color: var(--accentE-color-light);
+}
+
+.message.speakerE:hover p a[title*="wiki"],
+.message.speakerE:hover p a[href*="wiki"],
+.message.speakerE:hover p a:has(code),
+.message.speakerE.selected p a[title*="wiki"],
+.message.speakerE.selected p a[href*="wiki"],
+.message.speakerE.selected p a:has(code) {
+  background-color: var(--accentE-color);
+}
+
+.generic-speaker p a[title*="wiki"],
+.generic-speaker p a[href*="wiki"],
+.generic-speaker p a:has(code) {
+  background-color: var(--generic-color-light);
+}
+
+.message.generic-speaker:hover p a[title*="wiki"],
+.message.generic-speaker:hover p a[href*="wiki"],
+.message.generic-speaker:hover p a:has(code),
+.message.generic-speaker.selected p a[title*="wiki"],
+.message.generic-speaker.selected p a[href*="wiki"],
+.message.generic-speaker.selected p a:has(code) {
+  background-color: var(--generic-color);
+}
+
+.random p a[title*="wiki"],
+.random p a[href*="wiki"],
+.random p a:has(code) {
+  background-color: var(--accentC-color-light);
+}
+
+.message.random:hover p a[title*="wiki"],
+.message.random:hover p a[href*="wiki"],
+.message.random:hover p a:has(code),
+.message.random.selected p a[title*="wiki"],
+.message.random.selected p a[href*="wiki"],
+.message.random.selected p a:has(code) {
+  background-color: var(--accentC-color);
+}
+
+/* Inline code (backticks) styling */
+:not(pre) > code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--text-color);
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+/* Speaker-specific backtick styling */
+.user :not(pre) > code {
+  border-color: var(--user-color-light);
+}
+
+.message[data-speaker="user"]:hover :not(pre) > code,
+.message[data-speaker="user"].selected :not(pre) > code {
+  border-color: var(--user-color);
+}
+
+.assistant :not(pre) > code,
+.agent :not(pre) > code {
+  border-color: var(--assistant-color-light);
+}
+
+.message[data-speaker="assistant"]:hover :not(pre) > code,
+.message[data-speaker="agent"]:hover :not(pre) > code,
+.message[data-speaker="assistant"].selected :not(pre) > code,
+.message[data-speaker="agent"].selected :not(pre) > code {
+  border-color: var(--assistant-color);
+}
+
+.speakerC :not(pre) > code {
+  border-color: var(--accentC-color-light);
+}
+
+.message.speakerC:hover :not(pre) > code,
+.message.speakerC.selected :not(pre) > code {
+  border-color: var(--accentC-color);
+}
+
+.speakerD :not(pre) > code {
+  border-color: var(--accentD-color-light);
+}
+
+.message.speakerD:hover :not(pre) > code,
+.message.speakerD.selected :not(pre) > code {
+  border-color: var(--accentD-color);
+}
+
+.speakerE :not(pre) > code {
+  border-color: var(--accentE-color-light);
+}
+
+.message.speakerE:hover :not(pre) > code,
+.message.speakerE.selected :not(pre) > code {
+  border-color: var(--accentE-color);
+}
+
+.generic-speaker :not(pre) > code {
+  border-color: var(--generic-color-light);
+}
+
+.message.generic-speaker:hover :not(pre) > code,
+.message.generic-speaker.selected :not(pre) > code {
+  border-color: var(--generic-color);
+}
+
+.random :not(pre) > code {
+  border-color: var(--accentC-color-light);
+}
+
+.message.random:hover :not(pre) > code,
+.message.random.selected :not(pre) > code {
+  border-color: var(--accentC-color);
+} 

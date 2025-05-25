@@ -18,7 +18,7 @@ h2 {
 a {
   color: var(--accent-color);
   text-decoration: none;
-  transition: color 0.2s ease-in-out;
+  transition: color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 a:hover {
@@ -40,7 +40,7 @@ a:hover {
   font-weight: 700;
   color: var(--accent-color);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   display: flex;
   align-items: center;
   padding: 5px 15px;
@@ -62,6 +62,7 @@ a:hover {
   align-items: center;
   padding: 0 0 15px 0;
   margin-bottom: 30px;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 /* Header navigation specifics */
@@ -69,15 +70,30 @@ a:hover {
   padding: 0 0 20px 0;
   margin-top: 0;
   margin-bottom: 15px;
-  border-bottom: 1px solid var(--border-color);
 }
 
 /* Footer navigation specifics */
 .chat-nav.footer-nav {
-  margin-top: 50px;
-  margin-bottom: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  right: auto;
+  width: calc(100% - 40px);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 15px 20px;
+  background: none;
+  z-index: 100;
+  box-shadow: none;
+  transform: translate(-50%, 100%);
+  transition: transform var(--hover-transition-duration) var(--hover-transition-timing);
+  opacity: 1;
+  pointer-events: none;
+}
+
+.chat-nav.footer-nav.visible {
+  transform: translate(-50%, 0);
+  pointer-events: auto;
 }
 
 .chat-title {
@@ -93,7 +109,7 @@ a:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all 0.2s ease;
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 .chat-title:hover {
@@ -104,17 +120,17 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 2px solid var(--accent-color);
   border-radius: 4px;
   color: var(--accent-color);
-  transition: all 0.2s ease;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 .nav-link svg {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   fill: currentColor;
 }
 

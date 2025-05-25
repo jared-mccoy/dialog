@@ -1,0 +1,475 @@
+/**
+ * Machine Yearning Chat - Shared Icon Styles
+ * Common styles for speaker icons shared between message and typing indicator components
+ */
+
+/* Base icon styling for messages */
+.message::before {
+  content: '';
+  position: absolute;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background-color: var(--speaker-color);
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  
+  /* Common mask properties */
+  mask-size: 65% 65%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 65% 65%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+/* Base circle styling for messages */
+.message::after {
+  content: '';
+  position: absolute;
+  width: calc(var(--avatar-size) * 0.95);
+  height: calc(var(--avatar-size) * 0.95);
+  border-radius: 50%;
+  border: 2px solid var(--speaker-color);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 21;
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  background-color: transparent;
+}
+
+/* Speaker name caption styling - base styles for all captions */
+.message[data-display-speaker] .speaker-caption,
+.typing-indicator[data-display-speaker] .speaker-caption {
+  position: absolute;
+  writing-mode: horizontal-tb;
+  transform: none;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--speaker-color);
+  text-align: left;
+  top: -16px;
+  left: 4px;
+  height: auto;
+  white-space: nowrap;
+  line-height: 1;
+  z-index: 30;
+  background-color: var(--background-color);
+  padding: 2px 4px;
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+/* Message captions are hidden until hover */
+.message[data-display-speaker] .speaker-caption {
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Typing indicator captions are always visible */
+.typing-indicator[data-display-speaker] .speaker-caption {
+  opacity: 1;
+}
+
+/* User messages and typing indicators - right alignment */
+.message[data-speaker="user"][data-display-speaker] .speaker-caption,
+.typing-indicator[data-speaker="user"][data-display-speaker] .speaker-caption {
+  left: auto;
+  right: 4px;
+  text-align: right;
+}
+
+/* Show caption when message is active */
+.message[data-display-speaker].speaking .speaker-caption,
+.message[data-display-speaker].selected .speaker-caption,
+.message[data-display-speaker]:hover .speaker-caption {
+  opacity: 1;
+}
+
+/* Custom layout positioning - left */
+.message[data-layout-position="left"][data-display-speaker] .speaker-caption,
+.typing-indicator[data-layout-position="left"][data-display-speaker] .speaker-caption {
+  left: 4px;
+  right: auto;
+  text-align: left;
+}
+
+/* Custom layout positioning - right */
+.message[data-layout-position="right"][data-display-speaker] .speaker-caption,
+.typing-indicator[data-layout-position="right"][data-display-speaker] .speaker-caption {
+  right: 4px;
+  left: auto;
+  text-align: right;
+}
+
+/* Base icon styling for typing indicators */
+.typing-indicator::before {
+  content: '';
+  position: absolute;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background-color: var(--speaker-color);
+  opacity: 1;
+  
+  /* Common mask properties */
+  mask-size: 65% 65%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 65% 65%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  
+  will-change: transform, opacity;
+  contain: paint;
+  backface-visibility: hidden;
+}
+
+/* Base circle styling for typing indicators */
+.typing-indicator::after {
+  content: '';
+  position: absolute;
+  width: calc(var(--avatar-size) * 0.95);
+  height: calc(var(--avatar-size) * 0.95);
+  border-radius: 50%;
+  border: 2px solid var(--speaker-color);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 21;
+  opacity: 1;
+  background-color: transparent;
+  
+  will-change: transform, opacity;
+  contain: paint;
+  backface-visibility: hidden;
+}
+
+/* Speaker Icon Mapping - Dynamic based on order */
+
+/* User_A icon */
+.message[data-speaker-icon="User_A"]::before {
+  mask-image: url('../public/speaker_icons/User_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
+}
+
+/* User_B icon */
+.message[data-speaker-icon="User_B"]::before {
+  mask-image: url('../public/speaker_icons/User_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_B.svg');
+}
+
+/* User_C icon */
+.message[data-speaker-icon="User_C"]::before {
+  mask-image: url('../public/speaker_icons/User_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_C.svg');
+}
+
+/* User_D icon */
+.message[data-speaker-icon="User_D"]::before {
+  mask-image: url('../public/speaker_icons/User_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_D.svg');
+}
+
+/* User_E icon */
+.message[data-speaker-icon="User_E"]::before {
+  mask-image: url('../public/speaker_icons/User_E.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_E.svg');
+}
+
+/* User_F icon */
+.message[data-speaker-icon="User_F"]::before {
+  mask-image: url('../public/speaker_icons/User_F.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_F.svg');
+}
+
+/* User_G icon */
+.message[data-speaker-icon="User_G"]::before {
+  mask-image: url('../public/speaker_icons/User_G.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_G.svg');
+}
+
+/* User_H icon */
+.message[data-speaker-icon="User_H"]::before {
+  mask-image: url('../public/speaker_icons/User_H.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_H.svg');
+}
+
+/* User_I icon */
+.message[data-speaker-icon="User_I"]::before {
+  mask-image: url('../public/speaker_icons/User_I.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_I.svg');
+}
+
+/* User_J icon */
+.message[data-speaker-icon="User_J"]::before {
+  mask-image: url('../public/speaker_icons/User_J.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_J.svg');
+}
+
+/* Agent_A icon */
+.message[data-speaker-icon="Agent_A"]::before {
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
+}
+
+/* Agent_B icon */
+.message[data-speaker-icon="Agent_B"]::before {
+  mask-image: url('../public/speaker_icons/Agent_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_B.svg');
+}
+
+/* Agent_C icon */
+.message[data-speaker-icon="Agent_C"]::before {
+  mask-image: url('../public/speaker_icons/Agent_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_C.svg');
+}
+
+/* Agent_D icon */
+.message[data-speaker-icon="Agent_D"]::before {
+  mask-image: url('../public/speaker_icons/Agent_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_D.svg');
+}
+
+/* Empty icon (no SVG) */
+.message[data-speaker-icon="empty"]::before {
+  mask-image: none;
+  -webkit-mask-image: none;
+  opacity: 0;
+  display: none !important;
+}
+
+/* Also hide the circular border for empty icons */
+.message[data-speaker-icon="empty"]::after {
+  opacity: 0;
+  display: none !important;
+}
+
+/* Prevent transform for messages with empty icons */
+.message[data-speaker-icon="empty"].speaking,
+.message[data-speaker-icon="empty"].selected,
+.message[data-speaker-icon="empty"]:hover {
+  transform: none !important;
+}
+
+/* User positioning */
+.message[data-speaker="user"]::before {
+  right: var(--avatar-offset);
+}
+
+.message[data-speaker="user"]::after {
+  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
+}
+
+/* Non-user positioning */
+.message:not([data-speaker="user"])::before {
+  left: var(--avatar-offset);
+}
+
+.message:not([data-speaker="user"])::after {
+  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
+}
+
+/* Typing indicator icon mapping */
+/* User_A typing indicator */
+.typing-indicator[data-speaker-icon="User_A"]::before {
+  mask-image: url('../public/speaker_icons/User_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
+}
+
+/* User_B typing indicator */
+.typing-indicator[data-speaker-icon="User_B"]::before {
+  mask-image: url('../public/speaker_icons/User_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_B.svg');
+}
+
+/* User_C typing indicator */
+.typing-indicator[data-speaker-icon="User_C"]::before {
+  mask-image: url('../public/speaker_icons/User_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_C.svg');
+}
+
+/* User_D typing indicator */
+.typing-indicator[data-speaker-icon="User_D"]::before {
+  mask-image: url('../public/speaker_icons/User_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_D.svg');
+}
+
+/* User_E typing indicator */
+.typing-indicator[data-speaker-icon="User_E"]::before {
+  mask-image: url('../public/speaker_icons/User_E.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_E.svg');
+}
+
+/* User_F typing indicator */
+.typing-indicator[data-speaker-icon="User_F"]::before {
+  mask-image: url('../public/speaker_icons/User_F.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_F.svg');
+}
+
+/* User_G typing indicator */
+.typing-indicator[data-speaker-icon="User_G"]::before {
+  mask-image: url('../public/speaker_icons/User_G.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_G.svg');
+}
+
+/* User_H typing indicator */
+.typing-indicator[data-speaker-icon="User_H"]::before {
+  mask-image: url('../public/speaker_icons/User_H.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_H.svg');
+}
+
+/* User_I typing indicator */
+.typing-indicator[data-speaker-icon="User_I"]::before {
+  mask-image: url('../public/speaker_icons/User_I.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_I.svg');
+}
+
+/* User_J typing indicator */
+.typing-indicator[data-speaker-icon="User_J"]::before {
+  mask-image: url('../public/speaker_icons/User_J.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_J.svg');
+}
+
+/* Agent_A typing indicator */
+.typing-indicator[data-speaker-icon="Agent_A"]::before {
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
+}
+
+/* Agent_B typing indicator */
+.typing-indicator[data-speaker-icon="Agent_B"]::before {
+  mask-image: url('../public/speaker_icons/Agent_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_B.svg');
+}
+
+/* Agent_C typing indicator */
+.typing-indicator[data-speaker-icon="Agent_C"]::before {
+  mask-image: url('../public/speaker_icons/Agent_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_C.svg');
+}
+
+/* Agent_D typing indicator */
+.typing-indicator[data-speaker-icon="Agent_D"]::before {
+  mask-image: url('../public/speaker_icons/Agent_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_D.svg');
+}
+
+/* Empty typing indicator (no SVG) */
+.typing-indicator[data-speaker-icon="empty"]::before {
+  mask-image: none;
+  -webkit-mask-image: none;
+  opacity: 0;
+  display: none !important;
+}
+
+/* Also hide the circular border for empty typing indicators */
+.typing-indicator[data-speaker-icon="empty"]::after {
+  opacity: 0;
+  display: none !important;
+}
+
+/* Prevent transform for typing indicators with empty icons */
+.typing-indicator[data-speaker-icon="empty"].visible {
+  transform: scale(1) !important;
+}
+
+/* Handle custom icons with arbitrary names */
+/* This allows for icons like "trevor yn" that may contain spaces */
+/* NOTE: Custom icons are handled dynamically by the setupCustomIconCSS() function */
+/* which creates appropriate CSS rules for each custom icon at runtime */
+
+/* User typing indicator positioning */
+.typing-indicator[data-speaker="user"]::before {
+  left: auto;
+  right: var(--avatar-offset);
+}
+
+.typing-indicator[data-speaker="user"]::after {
+  left: auto;
+  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
+}
+
+/* Non-user typing indicator positioning */
+.typing-indicator:not([data-speaker="user"])::before {
+  left: var(--avatar-offset);
+}
+
+.typing-indicator:not([data-speaker="user"])::after {
+  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
+}
+
+/* Dynamic color mapping for typing indicators */
+.typing-indicator[data-color-key="user"] {
+  --speaker-color: var(--user-color);
+  border-color: var(--user-color); 
+}
+
+.typing-indicator[data-color-key="assistant"] {
+  --speaker-color: var(--assistant-color);
+  border-color: var(--assistant-color);
+}
+
+.typing-indicator[data-color-key="speakerc"] {
+  --speaker-color: var(--accentC-color);
+  border-color: var(--accentC-color);
+}
+
+.typing-indicator[data-color-key="speakerd"] {
+  --speaker-color: var(--accentD-color);
+  border-color: var(--accentD-color);
+}
+
+.typing-indicator[data-color-key="speakere"] {
+  --speaker-color: var(--accentE-color);
+  border-color: var(--accentE-color);
+}
+
+.typing-indicator[data-color-key="generic"] {
+  --speaker-color: var(--generic-color);
+  border-color: var(--generic-color);
+}
+
+/* Show message icons when active */
+.message.speaking::before,
+.message.selected::before,
+.message.speaking::after,
+.message.selected::after {
+  opacity: 1;
+}
+
+/* Ensure icons don't show on hover, only when selected or speaking */
+.message:hover:not(.selected):not(.speaking)::before,
+.message:hover:not(.selected):not(.speaking)::after {
+  opacity: 0;
+}
+
+/* Handle custom icons with arbitrary names */
+/* This allows for icons like "trevor yn" that may contain spaces */
+/* NOTE: Custom icons are handled dynamically by the setupCustomIconCSS() function */
+/* which creates appropriate CSS rules for each custom icon at runtime */
+
+/* Caption styling defined in combined rules above */
+
+/* Custom layout positioning defined in combined rules above */
+
+/* Add responsive spacing adjustment for typing indicators */
+@media screen and (max-width: 600px) {
+  .message[data-display-speaker] .speaker-caption,
+  .typing-indicator[data-display-speaker] .speaker-caption {
+    top: -14px; /* Slightly tighter on mobile */
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .message[data-display-speaker] .speaker-caption,
+  .typing-indicator[data-display-speaker] .speaker-caption {
+    top: -13px; /* Even tighter on very small screens */
+    padding: 1px 3px; /* Smaller padding */
+    font-size: 8px; /* Smaller font */
+  }
+} 

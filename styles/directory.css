@@ -13,7 +13,27 @@
   border-radius: 6px;
   margin-bottom: 8px;
   overflow: hidden;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              box-shadow var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              transform var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  cursor: pointer;
+}
+
+/* Apply transform AND tinting to the specifically hovered element and its children */
+/* Exclude top-level directory sections from transform */
+.directory-section.hover-active:not(.directory-container > .directory-section) {
+  transform: translateX(4px);
+}
+
+/* All directory sections get the color and shadow change */
+.directory-section.hover-active {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
+}
+
+/* Remove the non-transform hover effect - we only want tinting on hover-active elements */
+.directory-section:hover:not(.hover-active) {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Header elements */
@@ -23,12 +43,6 @@
   cursor: pointer;
   font-weight: 600;
   background-color: transparent;
-}
-
-/* Hover effect */
-.directory-section:hover {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
 }
 
 /* Content containers - nesting with indentation */
@@ -129,4 +143,9 @@
   display: none;
 }
 
-/* Spans container */ 
+/* Spans container */
+.directory-item {
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Apply to any other directory elements with transitions */ 

@@ -6,15 +6,19 @@
 
 // Module for extracting wikilinks and backticked spans from markdown content
 const spanExtractor = (function() {
-  // Debug mode
-  const DEBUG = true;
+  // Debug mode - turn off to reduce logging
+  const DEBUG = false;
   
   /**
    * Debug logger
    */
   function debug(message) {
     if (DEBUG && typeof console !== 'undefined') {
-      console.log(`[SpanExtractor] ${message}`);
+      // Don't log speaker markers - too noisy
+      if (message.includes('Speaker marker')) {
+        return;
+      }
+      debugLog(`[SpanExtractor] ${message}`);
     }
   }
   

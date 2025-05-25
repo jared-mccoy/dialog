@@ -19,6 +19,16 @@ import {
   getSpeakerClass
 } from './rendering.js';
 
+import { 
+  getSpeakerIcon, 
+  resetSpeakerIconMapping, 
+  getSpeakerColor, 
+  setupCustomIconCSS, 
+  shouldDisplaySpeakerName, 
+  getSpeakerDisplayName,
+  collectSpeakerIcon 
+} from '../utils/speakerIconMapper.js';
+
 /**
  * Process chat content from markdown to HTML
  * @param {Object} options - Processing options
@@ -32,6 +42,9 @@ export function processChatContent(options) {
 
   // Track all unique speakers in the conversation - this is important for proper message styling
   const speakers = [];
+  
+  // Reset the speaker icon mapping at the start of processing
+  resetSpeakerIconMapping();
   
   // Track layouts for each speaker
   const speakerLayouts = {};
@@ -77,10 +90,28 @@ export function processChatContent(options) {
   let currentMessage = '';
   let currentSectionId = 0;
   
-  // Process each line of the content
+  // First pass: collect all unique speakers
   for (let i = 0; i < lines.length; i++) {
-    const rawLine = lines[i]; // Keep the raw line with whitespace
-    const line = rawLine.trim(); // Use trimmed version only for conditionals
+    const rawLine = lines[i];
+    const line = rawLine.trim();
+    
+    if ((line.includes('<<') && line.includes('>>')) || (line.includes('<<') && line.includes('>>'))) {
+      const speakerInfo = extractSpeaker(line);
+      if (speakerInfo && !speakers.includes(speakerInfo.name)) {
+        speakers.push(speakerInfo.name);
+        // Pre-collect the icon for this speaker
+        collectSpeakerIcon(speakerInfo.name);
+      }
+    }
+  }
+  
+  // Now that we have all speakers, set up CSS once
+  setupCustomIconCSS();
+  
+  // Second pass: process the content
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const line = rawLine.trim();
     
     // Detect headers (## style markdown headers)
     if (isMarkdownHeader(line)) {
@@ -316,6 +347,26 @@ export function processChatContent(options) {
         messageEl.classList.add(speakerClass);
         messageEl.setAttribute('data-speaker', group.speaker);
         
+        // Add the speaker icon attribute based on appearance order
+        const speakerIcon = getSpeakerIcon(group.speaker);
+        messageEl.setAttribute('data-speaker-icon', speakerIcon);
+        
+        // Add the dynamic color key attribute based on appearance order
+        const colorKey = getSpeakerColor(group.speaker);
+        messageEl.setAttribute('data-color-key', colorKey);
+        
+        // Add speaker name caption for custom speakers
+        if (shouldDisplaySpeakerName(group.speaker)) {
+          messageEl.setAttribute('data-display-speaker', 'true');
+          const displayName = getSpeakerDisplayName(group.speaker);
+          
+          // Create caption element
+          const caption = document.createElement('div');
+          caption.className = 'speaker-caption';
+          caption.textContent = displayName;
+          messageEl.appendChild(caption);
+        }
+        
         // Apply custom layout if provided
         if (group.layout) {
           if (group.layout.position === 'left') {
@@ -343,6 +394,14 @@ export function processChatContent(options) {
         contentEl.className = 'content';
         contentEl.innerHTML = window.marked.parse(msgContent, { renderer });
         
+        // Add the speaker color as a direct style variable for SVG icons and other uses
+        const speakerColor = getSpeakerColor(group.speaker);
+        if (speakerColor) {
+          // Apply the color as both a CSS variable and direct style for better compatibility
+          const colorVar = `var(--${speakerColor}-color, var(--${speakerColor === 'user' ? 'user' : speakerColor === 'assistant' ? 'assistant' : 'accent' + speakerColor.charAt(speakerColor.length-1).toUpperCase()}-color))`;
+          messageEl.style.setProperty('--speaker-color', colorVar);
+        }
+        
         // Assemble message
         contentContainer.appendChild(contentEl);
         messageEl.appendChild(contentContainer);
@@ -363,7 +422,7 @@ export function processChatContent(options) {
   chatContainer.className = 'chat-container';
   
   // Add navigation header if navConfig is provided and showTitle is true
-  if (options.navConfig && options.showTitle) {
+  if (options.navConfig && options.showTitle && options.addNavigation !== false) {
     const headerNav = createNavigationUI('header-nav', options.navConfig);
     chatContainer.appendChild(headerNav);
   }
@@ -378,7 +437,7 @@ export function processChatContent(options) {
   content.innerHTML = '';
   
   // Add navigation footer if navConfig is provided
-  if (options.navConfig) {
+  if (options.navConfig && options.addNavigation !== false) {
     const footerNav = createNavigationUI('footer-nav', options.navConfig);
     chatContainer.appendChild(footerNav);
   }

@@ -17,57 +17,102 @@ function applyRecursiveStyling() {
     return;
   }
   
-  console.log('Applying recursive styling with root font size:', rootFontSize + 'px');
-  console.log('Using config:', config);
+  // Only log once at start, not for every depth level
+  debugLog('Applying recursive styling with root font size:', rootFontSize + 'px');
   
-  // Clear any existing inline styles first and remove any existing buffer elements
+  // Remove any existing hover handlers
+  const sections = document.querySelectorAll('.directory-section');
+  sections.forEach(section => {
+    section.removeEventListener('mouseenter', section._mouseEnterHandler);
+    section.removeEventListener('mouseleave', section._mouseLeaveHandler);
+    delete section._mouseEnterHandler;
+    delete section._mouseLeaveHandler;
+    section.classList.remove('hover-active');
+    
+    // Preserve any click handlers that were attached
+    // (We don't need to do anything here, just making sure we don't remove them)
+  });
+  
+  // Clear existing styles
   clearExistingStyles(container);
   
-  // Process the tree recursively starting at the top level with depth 0
+  // Process the tree recursively 
   processLevel(container, 0);
   
   // Add buffer elements where needed
   addBufferElements(container);
   
+  // Add a single hover handler at the container level
+  container.addEventListener('mouseover', event => {
+    const target = event.target;
+    const section = target.closest('.directory-section');
+    
+    if (section) {
+      // Remove hover from all sections first
+      document.querySelectorAll('.hover-active').forEach(el => {
+        el.classList.remove('hover-active');
+      });
+      
+      // Add hover to this section
+      section.classList.add('hover-active');
+    }
+  });
+  
+  container.addEventListener('mouseout', event => {
+    const section = event.target.closest('.directory-section');
+    const relatedTarget = event.relatedTarget;
+    
+    // Only remove if we're actually leaving the section completely
+    if (section && (!relatedTarget || !section.contains(relatedTarget))) {
+      section.classList.remove('hover-active');
+    }
+  });
+  
   // Helper function to clear existing styles and buffer elements
   function clearExistingStyles(element) {
-    // Remove any existing buffer elements
+    // Remove existing buffer elements
     const buffers = element.querySelectorAll('.spans-buffer');
     buffers.forEach(buffer => buffer.remove());
     
+    // Reset section styles
     const sections = element.querySelectorAll('.directory-section');
     sections.forEach(section => {
+      // Remove all inline styles that we manage
       section.style.borderWidth = '';
       section.style.borderRadius = '';
       section.style.marginBottom = '';
+      section.style.transition = '';
+      section.style.transform = '';
       
+      // Preserve cursor pointer style, which is now handled in CSS
+      // section.style.cursor = 'pointer';
+      
+      // Reset header styles
       const header = section.querySelector('.directory-header-wrapper');
       if (header) {
         header.style.padding = '';
         header.style.fontSize = '';
       }
       
+      // Reset content container styles
       const content = section.querySelector('.directory-content-container');
       if (content) {
         content.style.padding = '';
       }
-
-      // Clear tag styles thoroughly
+      
+      // Reset tag styles
       const tags = section.querySelectorAll('.directory-tag');
       tags.forEach(tag => {
-        // Reset all possible style properties
         tag.style.fontSize = '';
         tag.style.padding = '';
         tag.style.borderRadius = '';
         tag.style.borderWidth = '';
         tag.style.borderStyle = '';
         tag.style.margin = '';
-        tag.style.height = '';
-        tag.style.width = '';
       });
     });
     
-    // Also look for any tags in spans containers that might be outside sections
+    // Reset styles for tags outside sections
     const extraTags = element.querySelectorAll('.directory-spans-container .directory-tag');
     extraTags.forEach(tag => {
       tag.style.fontSize = '';
@@ -76,8 +121,6 @@ function applyRecursiveStyling() {
       tag.style.borderWidth = '';
       tag.style.borderStyle = '';
       tag.style.margin = '';
-      tag.style.height = '';
-      tag.style.width = '';
     });
   }
   
@@ -96,8 +139,6 @@ function applyRecursiveStyling() {
         
         if (current.classList.contains('directory-spans-container') && 
             next.classList.contains('directory-section')) {
-          console.log('Found spans container followed by directory section - adding buffer');
-          
           // Find the depth of this content container
           let depth = 0;
           let parent = container;
@@ -140,14 +181,10 @@ function applyRecursiveStyling() {
   
   // Recursive function to process each level of nesting
   function processLevel(element, depth) {
-    // Find all direct child sections within this element
     const sections = Array.from(element.children).filter(
       child => child.classList.contains('directory-section')
     );
     
-    console.log(`Processing ${sections.length} sections at depth ${depth}`);
-    
-    // Apply styling to each section
     sections.forEach((section, index) => {
       // Calculate values for this depth using appropriate scaling factors
       const borderWidth = calculateValue(config.base.borderWidth, config.scale.borderWidth, depth);
@@ -156,13 +193,6 @@ function applyRecursiveStyling() {
       const verticalPadding = calculateValue(config.base.verticalPadding, config.scale.spacing, depth);
       const horizontalPadding = calculateValue(config.base.horizontalPadding, config.scale.spacing, depth);
       const fontSize = calculateValue(config.base.fontSize, config.scale.fontSize, depth);
-      
-      // Log calculated values in pixels for debugging
-      console.log(`Section ${index} at depth ${depth}:`, {
-        borderWidth: remToPx(borderWidth) + 'px',
-        borderRadius: remToPx(borderRadius) + 'px',
-        fontSize: remToPx(fontSize) + 'px'
-      });
       
       // Apply border styling
       section.style.borderWidth = `${borderWidth}rem`;
@@ -173,7 +203,7 @@ function applyRecursiveStyling() {
       if (index < sections.length - 1) {
         section.style.marginBottom = `${marginBottom}rem`;
       } else {
-        section.style.marginBottom = '0'; // Explicitly set to 0 for the last section
+        section.style.marginBottom = '0';
       }
       
       // Style the header elements
@@ -222,8 +252,6 @@ function applyRecursiveStyling() {
           const tagPaddingH = calculateValue(tagBase.paddingH, tagScale.padding, depth);
           const tagBorderRadius = calculateValue(tagBase.borderRadius, tagScale.borderRadius, depth);
           const tagBorderWidth = calculateValue(tagBase.borderWidth, tagScale.borderWidth, depth);
-          
-          console.log(`Styling ${tags.length} tags at depth ${depth} with fontSize: ${tagFontSize}rem, borderWidth: ${tagBorderWidth}rem`);
 
           // Apply styles to each tag
           tags.forEach(tag => {
@@ -316,7 +344,7 @@ function debounce(func, wait) {
 
 // Hook into the directory view initialization
 function initRecursiveStyling() {
-  console.log('Initializing recursive styling');
+  debugLog('Initializing recursive styling');
   
   // Apply initial styling after a short delay to ensure DOM is ready
   setTimeout(applyRecursiveStyling, 500);
@@ -349,22 +377,33 @@ window.recursiveStyling = {
 
 // Auto-initialize after directory view is ready
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Setting up recursive styling initialization');
+  debugLog('Setting up recursive styling initialization');
+  debugLog(`Current URL path: ${window.location.pathname}`);
+  debugLog(`Current search params: ${window.location.search}`);
   
   // Skip on chat pages - only run on directory pages
   if (window.location.search.includes('path=')) {
-    console.log('On chat page - skipping recursive styling');
+    debugLog('On chat page - skipping recursive styling');
     return;
   }
   
   // Check if we can find the directory container
   const checkAndInit = () => {
     const container = document.querySelector('.directory-container');
+    debugLog(`Directory container attempt: ${container ? 'FOUND' : 'NOT FOUND'}`);
+    
+    // Let's log all elements on the page to see what's there
+    debugLog('Current DOM elements:', {
+      'body children': document.body.children.length,
+      'post-container': document.getElementById('post-container'),
+      'post-container content': document.getElementById('post-container')?.innerHTML
+    });
+    
     if (container) {
-      console.log('Directory container found, initializing styling');
+      debugLog('Directory container found, initializing styling');
       initRecursiveStyling();
     } else {
-      console.log('Directory container not found yet, retrying...');
+      debugLog('Directory container not found yet, retrying...');
       // Try again in a moment
       setTimeout(checkAndInit, 200);
     }

@@ -1,0 +1,23 @@
+/**
+ * Machine Yearning Chat - Master CSS file
+ * This file imports all component stylesheets in the correct order.
+ */
+
+/* Theme variables and base styles */
+@import 'theme.css';
+@import 'base.css';
+@import 'layout.css';
+
+/* Chat component styles */
+@import 'shared-icon-styles.css'; /* Common icon styling */
+@import 'chat-components.css';
+@import 'chat-bubbles.css';
+@import 'chat-typography.css';
+@import 'code-blocks.css';
+@import 'chat-animations.css';
+
+/* Directory and navigation */
+@import 'directory.css';
+
+/* Mobile responsive adjustments (mobile-only) */
+@import 'responsive.css'; 

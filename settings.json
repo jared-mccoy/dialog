@@ -3,7 +3,7 @@
     "typingAnimation": {
       "enabled": true,
       "wordsPerMinute": 1500,
-      "minTypingTime": 800,
+      "minTypingTime": 1200,
       "maxTypingTime": 15000,
       "variancePercentage": 15,
       "typingAppliesTo": "both"
@@ -14,14 +14,32 @@
       "minReadTime": 300,
       "maxReadTime": 15000,
       "variancePercentage": 20
+    },
+    "timeEffects": {
+      "transitionDelay": 2,
+      "easing": "cubic-bezier(0.19, 1, 0.22, 1)"
+    }
+  },
+  "logging": {
+    "mode": "debug",
+    "levels": {
+      "production": ["warning", "error", "critical"],
+      "debug": ["debug", "info", "warning", "error", "critical"]
     }
   },
   "theme": {
     "accentA": "#192b91",
     "accentB": "#ffc400",
-    "accentC": "#e63946",
-    "accentD": "#2a9d8f",
-    "accentE": "#8338ec",
+    "accentC": "#e34234",
+    "accentD": "#8a16c1",
+    "accentE": "#3ecb75",
+    "accentF": "#d83790",
+    "accentG": "#00a5b3",
+    "accentH": "#ff7e27",
+    "accentI": "#6b5ca5",
+    "accentJ": "#2ecc71",
+    "accentK": "#e84c8b",
+    "accentL": "#587d9f",
     "genericAccent": "#909090"
   },
   "directory": {
