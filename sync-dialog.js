@@ -11,6 +11,9 @@ const os = require('os');
  * Pushes directly to main branch
  */
 
+// Store original directory
+const originalDir = process.cwd();
+
 // Create readline interface for user input
 const rl = readline.createInterface({
   input: process.stdin,
@@ -27,6 +30,46 @@ const COMMIT_MSG = process.argv[2];
 const tempDir = path.join(os.tmpdir(), `dialog-sync-${Date.now()}`);
 console.log(`Creating temporary directory: ${tempDir}`);
 fs.mkdirSync(tempDir, { recursive: true });
+
+// Helper function to safely clean up temporary directory
+function cleanupTempDir() {
+  try {
+    // Make sure we're not in the temp directory
+    process.chdir(originalDir);
+    
+    console.log('Cleaning up temporary files...');
+    
+    // On Windows, we might need to retry due to file locking
+    let retries = 5;
+    let success = false;
+    
+    while (retries > 0 && !success) {
+      try {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+        success = true;
+      } catch (err) {
+        retries--;
+        if (retries === 0) {
+          console.warn(`Warning: Could not remove temp directory: ${tempDir}`);
+          console.warn('You may need to delete it manually.');
+        } else {
+          // Wait a moment before retrying
+          execSync('timeout /t 1', { stdio: 'ignore' });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`Warning: Error during cleanup: ${err.message}`);
+    console.warn(`Temporary directory may still exist at: ${tempDir}`);
+  }
+}
+
+// Set up graceful exit
+process.on('SIGINT', () => {
+  console.log('\nInterrupted. Cleaning up...');
+  cleanupTempDir();
+  process.exit(1);
+});
 
 // Generate default commit message if none provided
 function getDefaultCommitMessage() {
@@ -106,7 +149,8 @@ try {
   if (filesToSync.length === 0) {
     console.log('No files to sync');
     // Clean up and exit
-    fs.rmSync(tempDir, { recursive: true, force: true });
+    cleanupTempDir();
+    rl.close();
     process.exit(0);
   }
   
@@ -120,7 +164,7 @@ try {
     if (answer.toLowerCase() !== 'y') {
       console.log('Sync cancelled');
       // Clean up
-      fs.rmSync(tempDir, { recursive: true, force: true });
+      cleanupTempDir();
       rl.close();
       process.exit(0);
     }
@@ -161,27 +205,36 @@ try {
       
       console.log('\nChanges pushed successfully to main branch!');
       
-      // Clean up
-      console.log('Cleaning up temporary files...');
-      process.chdir(process.cwd());
-      fs.rmSync(tempDir, { recursive: true, force: true });
+      // Clean up and return to original directory
+      process.chdir(originalDir);
       
-      console.log('Sync completed successfully!');
+      // Close readline before cleanup to avoid file handle issues
       rl.close();
+      
+      // Add a small delay before cleanup to ensure all file handles are released
+      setTimeout(() => {
+        cleanupTempDir();
+        console.log('Sync completed successfully!');
+      }, 1000);
     } catch (error) {
+      // Make sure we change back to original directory
+      process.chdir(originalDir);
       console.error('Error during commit/push:', error.message);
-      // Clean up on error
-      process.chdir(process.cwd());
-      fs.rmSync(tempDir, { recursive: true, force: true });
+      
+      // Close readline before cleanup
       rl.close();
-      process.exit(1);
+      
+      // Add a small delay before cleanup
+      setTimeout(() => {
+        cleanupTempDir();
+        process.exit(1);
+      }, 1000);
     }
   });
 } catch (error) {
   console.error('Error:', error.message);
   // Clean up on error
-  if (fs.existsSync(tempDir)) {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  }
+  cleanupTempDir();
+  rl.close();
   process.exit(1);
 } 
