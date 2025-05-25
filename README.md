@@ -1,4 +1,4 @@
-# Machine Yearning Chat
+# Machine Yearning
 
 A GitHub Pages template for rendering Markdown conversation files as a chat interface.
 
