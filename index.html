@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Machine Yearning</title>
   
+  <!-- Preload critical assets -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&display=swap" as="style">
+  
+  <!-- Load logging first to ensure debugLog is available to all scripts -->
+  <script src="scripts/logging.js"></script>
+  
   <!-- Prevent flash of incorrect theme -->
   <script>
     // Immediately set theme before page renders
@@ -28,43 +34,37 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Add CSS files -->
-  <link rel="stylesheet" href="styles/theme.css">
-  <link rel="stylesheet" href="styles/layout.css">
-  <link rel="stylesheet" href="styles/directory.css">
-  <link rel="stylesheet" href="styles/chat.css">
+  <!-- CSS - using our new modular structure -->
+  <link rel="stylesheet" href="styles/index.css">
 
-  <!-- Add PrismJS for syntax highlighting -->
+  <!-- Add PrismJS for syntax highlighting - defer non-critical -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-solarizedlight.min.css" id="prism-light-theme">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" id="prism-dark-theme" disabled>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 
   <!-- Add required JavaScript libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
   
   <!-- Theme switching script -->
   <script>
-    // Function to toggle theme stylesheets
-    function togglePrismTheme(isDark) {
-      document.getElementById('prism-light-theme').disabled = isDark;
-      document.getElementById('prism-dark-theme').disabled = !isDark;
-      
-      // Re-highlight any code blocks to properly apply the new theme
-      if (window.Prism) {
-        setTimeout(() => {
-          Prism.highlightAll();
-        }, 100);
-      }
-    }
-    
-    // Make function available globally
-    window.togglePrismTheme = togglePrismTheme;
-    
-    // Watch for theme changes
+    // Function to toggle theme stylesheets - defer execution
     document.addEventListener('DOMContentLoaded', function() {
+      function togglePrismTheme(isDark) {
+        document.getElementById('prism-light-theme').disabled = isDark;
+        document.getElementById('prism-dark-theme').disabled = !isDark;
+        
+        // Re-highlight any code blocks to properly apply the new theme
+        if (window.Prism) {
+          window.requestAnimationFrame(() => {
+            Prism.highlightAll();
+          });
+        }
+      }
+      
+      // Make function available globally
+      window.togglePrismTheme = togglePrismTheme;
+      
       // Apply current theme on load
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
       togglePrismTheme(currentTheme === 'dark');
@@ -116,7 +116,7 @@
   </div>
 
   <!-- Chat navigation - separate from content, always appears at top -->
-  <div id="chat-nav" class="chat-nav" style="display: none;">
+  <div id="chat-nav" class="chat-nav header-nav" style="display: none;">
     <a href="#" class="nav-link prev-link" id="prev-link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
@@ -141,11 +141,25 @@
     <div id="markdown-content" class="markdown-body" style="display: none;">
       <!-- Chat content will be populated by JavaScript -->
     </div>
-
- 
+  </div>
+  
+  <!-- Footer navigation - mirrors the header navigation -->
+  <div id="chat-nav-footer" class="chat-nav footer-nav" style="display: none;">
+    <a href="#" class="nav-link prev-link" id="prev-link-footer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+      </svg>
+    </a>
+    <h2 class="chat-title" id="chat-title-footer">Chat</h2>
+    <a href="#" class="nav-link next-link" id="next-link-footer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+      </svg>
+    </a>
   </div>
 
   <style>
+    /* Inline styles for essential elements */
     .loading-indicator {
       text-align: center;
       padding: 2rem;
@@ -188,13 +202,13 @@
   </style>
   
   <!-- Add app scripts at the end of body -->
-  <script src="scripts/settings.js"></script>
-  <script src="scripts/ui.js"></script>
-  <script src="scripts/directory.js"></script>
+  <script src="scripts/settings.js" defer></script>
+  <script type="module" src="scripts/app/App.js"></script>
+  <script src="scripts/ui.js" defer></script>
+  <script src="scripts/directory.js" defer></script>
   <script type="module" src="scripts/converter/ChatConverter.js"></script>
   <script type="module" src="scripts/animate/ChatAnimator.js"></script>
-  <script src="scripts/recursive-styling.js"></script>
-  <script src="scripts/span-extractor.js"></script>
-  <script src="scripts/app.js"></script>
+  <script src="scripts/recursive-styling.js" defer></script>
+  <script src="scripts/span-extractor.js" defer></script>
 </body>
 </html> 

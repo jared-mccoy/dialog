@@ -1,7 +1,21 @@
 /**
  * Chat Directory Scanner
- * Dynamically discovers all chat files in the content directory
+ * Uses api.json to discover all chat files in the content directory
  */
+
+// Add base URL config to handle both local and GitHub Pages environments
+const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? '' 
+  : '/machine-yearning';
+
+// Add more detailed logging
+if (window.appLog) {
+  appLog.info(`Running on ${window.location.hostname} with baseUrl set to: "${baseUrl}"`);
+  appLog.info(`Full current URL: ${window.location.href}`);
+} else {
+  console.info(`Running on ${window.location.hostname} with baseUrl set to: "${baseUrl}"`);
+  console.info(`Full current URL: ${window.location.href}`);
+}
 
 class ChatDirectoryScanner {
   constructor() {
@@ -15,10 +29,10 @@ class ChatDirectoryScanner {
     this.clearCache();
     
     // Log constructor completion
-    if (typeof window.debugLog === 'function') {
-      window.debugLog('ChatDirectoryScanner constructor completed');
+    if (window.appLog) {
+      appLog.debug('ChatDirectoryScanner constructor completed');
     } else {
-      console.log('ChatDirectoryScanner constructor completed');
+      console.info('ChatDirectoryScanner constructor completed');
     }
   }
   
@@ -26,10 +40,10 @@ class ChatDirectoryScanner {
   clearCache() {
     try {
       localStorage.removeItem(this.cacheKey);
-      if (window.debugLog) {
-        window.debugLog('Chat scanner cache cleared');
+      if (window.appLog) {
+        appLog.debug('Chat scanner cache cleared');
       } else {
-        console.log('Chat scanner cache cleared');
+        console.info('Chat scanner cache cleared');
       }
     } catch (e) {
       console.warn('Failed to clear cache:', e);
@@ -42,10 +56,10 @@ class ChatDirectoryScanner {
    */
   async init() {
     const log = (msg) => {
-      if (typeof window.debugLog === 'function') {
-        window.debugLog(msg);
+      if (window.appLog) {
+        appLog.debug(msg);
       } else {
-        console.log(msg);
+        console.info(msg);
       }
     };
     
@@ -60,10 +74,10 @@ class ChatDirectoryScanner {
       return Promise.resolve(this.dates);
     }
 
-    // If no cached data, scan the directory
-    log('No cache found, scanning directory');
-    return this.scanChatDirectory().catch(error => {
-      log(`Directory scan error: ${error.message}`);
+    // If no cached data, fetch from api.json
+    log('No cache found, fetching from api.json');
+    return this.fetchFromApi().catch(error => {
+      log(`API fetch error: ${error.message}`);
       
       // Display a user-friendly error on the page
       const postContainer = document.getElementById('post-container');
@@ -73,8 +87,8 @@ class ChatDirectoryScanner {
             <strong>Error loading conversations:</strong> ${error.message}<br><br>
             <p>Please check that:</p>
             <ul>
-              <li>Your content directory exists and contains markdown files</li>
-              <li>The Jekyll server is running properly</li>
+              <li>The api.json file exists and is properly formatted</li>
+              <li>Your content directory contains markdown files</li>
               <li>There are no JavaScript errors in the console</li>
             </ul>
           </div>
@@ -128,10 +142,10 @@ class ChatDirectoryScanner {
   }
 
   /**
-   * Scan the content directory to find all conversation files
+   * Fetch and process data from api.json
    * @returns {Promise} Resolves with an array of date objects
    */
-  async scanChatDirectory() {
+  async fetchFromApi() {
     if (this.isLoading) {
       return new Promise(resolve => {
         // Poll until loading is complete
@@ -151,237 +165,54 @@ class ChatDirectoryScanner {
     this.chats = [];
     
     const logMsg = (msg) => {
-      if (window.debugLog) {
-        window.debugLog(msg);
+      if (window.appLog) {
+        appLog.debug(msg);
       } else {
-        console.log(msg);
+        console.info(msg);
       }
     };
 
     try {
-      logMsg('Starting to scan content directory');
+      logMsg('Fetching api.json');
+      const response = await fetch(`${baseUrl}/api.json`);
       
-      // Try to use the API first
-      try {
-        logMsg('Fetching chat list from API');
-        const apiResponse = await fetch('/api.json');
-        
-        if (apiResponse.ok) {
-          const apiData = await apiResponse.json();
-          logMsg(`Received API data with ${apiData.chats.length} files`);
-          
-          // Process files from API
-          await this.processFilesFromApi(apiData.chats);
-          this.isLoading = false;
-          return this.dates;
-        } else {
-          logMsg('API not available, falling back to directory scanning');
-        }
-      } catch (apiError) {
-        logMsg(`API error: ${apiError.message}, falling back to directory scanning`);
-      }
-      
-      // Fallback: Fetch the content directory
-      logMsg('Fetching content directory listing');
-      const response = await fetch('/content/');
       if (!response.ok) {
-        throw new Error(`Failed to fetch content directory: ${response.status}`);
+        throw new Error(`Failed to fetch api.json: ${response.status} ${response.statusText}`);
       }
 
-      const html = await response.text();
-      logMsg(`Received content directory listing (${html.length} chars)`);
-      const dateDirs = this.parseDateDirectories(html);
-      logMsg(`Found ${dateDirs.length} date directories: ${dateDirs.join(', ')}`);
-
-      // Process each date directory
-      const datePromises = dateDirs.map(async dateDir => {
+      const apiData = await response.json();
+      
+      // Process each directory
+      for (const [dirName, files] of Object.entries(apiData.directories)) {
         const dateObj = {
-          name: dateDir,
-          displayName: dateDir,
-          files: []
-        };
-
-        // Fetch the date directory
-        const dateResponse = await fetch(`/content/${dateDir}/`);
-        if (!dateResponse.ok) {
-          return dateObj;
-        }
-
-        const dateHtml = await dateResponse.text();
-        const chatFiles = this.parseChatFiles(dateHtml, dateDir);
-        
-        // Add additional metadata for each file
-        const filePromises = chatFiles.map(async file => {
-          const fileData = {
+          name: dirName,
+          displayName: dirName,
+          files: files.map(file => ({
             path: file.path,
-            title: file.filename.replace('.md', ''),
-            originalFilename: file.filename  // Store original filename for sorting
-          };
-
-          // Try to extract the title from the file
-          try {
-            const fileResponse = await fetch(file.path);
-            if (fileResponse.ok) {
-              const markdown = await fileResponse.text();
-              const titleMatch = markdown.match(/^#\s+(.+)$/m);
-              if (titleMatch) {
-                fileData.title = titleMatch[1].trim();
-              }
-            }
-          } catch (e) {
-            console.warn(`Failed to extract title from ${file.path}:`, e);
-          }
-
-          this.chats.push(fileData);
-          return fileData;
-        });
-
-        dateObj.files = await Promise.all(filePromises);
-        
-        // Sort files by their original filename
-        dateObj.files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
-        
-        return dateObj;
-      });
-
-      this.dates = await Promise.all(datePromises);
-      this.dates.sort((a, b) => b.name.localeCompare(a.name)); // Sort in reverse chronological order
-      this.saveToCache();
-      this.isLoading = false;
-      return this.dates;
-    } catch (error) {
-      console.error('Error scanning chat directory:', error);
-      this.isLoading = false;
-      return [];
-    }
-  }
-  
-  /**
-   * Process files from the API response
-   * @param {Array} files Array of file objects from the API
-   */
-  async processFilesFromApi(files) {
-    // Group files by date
-    const dateMap = {};
-    
-    // Create an array of promises for fetching file contents
-    const filePromises = files.map(async file => {
-      // Extract date from path (assuming path format like "content/2025.04.15/file.md")
-      const pathParts = file.path.split('/');
-      if (pathParts.length >= 2) {
-        const dateDir = pathParts[1];
-        
-        // Skip non-markdown files
-        if (!file.name.endsWith('.md')) return null;
-        
-        // Create date entry if it doesn't exist
-        if (!dateMap[dateDir]) {
-          dateMap[dateDir] = {
-            name: dateDir,
-            displayName: dateDir,
-            files: []
-          };
-        }
-        
-        // Create the file data object with filename as default title
-        const fileData = {
-          path: file.path,
-          title: file.name.replace('.md', ''),
-          originalFilename: file.name  // Store original filename for sorting
+            name: file.name,
+            title: file.name.replace('.md', '')
+          }))
         };
         
-        // Try to extract title from the file content
-        try {
-          const fileResponse = await fetch(file.path);
-          if (fileResponse.ok) {
-            const markdown = await fileResponse.text();
-            const titleMatch = markdown.match(/^#\s+(.+)$/m);
-            if (titleMatch) {
-              fileData.title = titleMatch[1].trim();
-            }
-          }
-        } catch (e) {
-          console.warn(`Failed to extract title from ${file.path}:`, e);
-        }
-        
-        // Add to the date's files array
-        dateMap[dateDir].files.push(fileData);
-        return fileData;
+        this.dates.push(dateObj);
+        this.chats.push(...dateObj.files);
       }
-      return null;
-    });
+      
+      // Sort dates in reverse chronological order
+      this.dates.sort((a, b) => b.name.localeCompare(a.name));
+      
+      logMsg(`Processed ${this.dates.length} date directories with a total of ${this.chats.length} files`);
+      
+      this.saveToCache();
+    } catch (error) {
+      console.error('Error fetching from api.json:', error);
+      logMsg(`API fetch error: ${error.message}`);
+      this.isLoading = false;
+      throw error;
+    }
     
-    // Wait for all file processing to complete
-    const processedFiles = await Promise.all(filePromises);
-    
-    // Add valid files to the chats array
-    this.chats = processedFiles.filter(file => file !== null);
-    
-    // Sort files in each date directory
-    Object.values(dateMap).forEach(dateObj => {
-      dateObj.files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
-    });
-    
-    // Convert map to array
-    this.dates = Object.values(dateMap);
-    
-    // Sort dates in reverse chronological order
-    this.dates.sort((a, b) => b.name.localeCompare(a.name));
-    
-    // Save to cache
-    this.saveToCache();
-  }
-
-  /**
-   * Parse HTML from the content directory to find date subdirectories
-   * @param {string} html HTML content of the content directory
-   * @returns {Array} Array of date directory names
-   */
-  parseDateDirectories(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const links = Array.from(doc.querySelectorAll('a'));
-    
-    // Find directories (they end with /)
-    return links
-      .filter(link => {
-        const href = link.getAttribute('href');
-        return href && href.endsWith('/') && !href.startsWith('..') && href !== './';
-      })
-      .map(link => {
-        let href = link.getAttribute('href');
-        // Remove trailing slash
-        if (href.endsWith('/')) {
-          href = href.slice(0, -1);
-        }
-        return href;
-      });
-  }
-
-  /**
-   * Parse HTML from a date directory to find markdown files
-   * @param {string} html HTML content of a date directory
-   * @param {string} dateDir Name of the date directory
-   * @returns {Array} Array of file objects with path and filename
-   */
-  parseChatFiles(html, dateDir) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const links = Array.from(doc.querySelectorAll('a'));
-    
-    // Find markdown files
-    return links
-      .filter(link => {
-        const href = link.getAttribute('href');
-        return href && href.endsWith('.md') && !href.startsWith('..') && href !== './';
-      })
-      .map(link => {
-        const filename = link.getAttribute('href');
-        return {
-          path: `content/${dateDir}/${filename}`,
-          filename
-        };
-      });
+    this.isLoading = false;
+    return this.dates;
   }
 
   /**
@@ -412,6 +243,134 @@ class ChatDirectoryScanner {
     }
     
     return { prev, next };
+  }
+
+  /**
+   * Get the full URL for a file
+   * @param {string} filePath The file path from api.json
+   * @returns {string} The full URL to fetch the file
+   */
+  getFileUrl(filePath) {
+    // Normalize path to use forward slashes
+    const normalizedPath = filePath.replace(/\\/g, '/');
+    const url = `${baseUrl}/${normalizedPath}`;
+    
+    if (window.appLog) {
+      appLog.debug(`Constructed file URL: ${url}`);
+    }
+    
+    return url;
+  }
+
+  /**
+   * Get headers from a markdown file
+   * @param {string} filePath Path to the markdown file
+   * @returns {Promise<Array>} Array of header objects
+   */
+  async getFileHeaders(filePath) {
+    try {
+      const url = this.getFileUrl(filePath);
+      if (window.appLog) {
+        appLog.debug(`Fetching headers from: ${url}`);
+      }
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}: ${response.status}`);
+      }
+      const text = await response.text();
+      return this.extractHeaders(text);
+    } catch (error) {
+      console.warn(`Error fetching headers for ${filePath}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Initialize the directory view
+   * @returns {Promise<void>}
+   */
+  async initDirectoryView() {
+    const log = (msg) => {
+      if (window.appLog) {
+        appLog.debug(msg);
+      } else {
+        console.info(msg);
+      }
+    };
+
+    try {
+      log('Starting directory view mode');
+      log('Initializing chat scanner');
+
+      // Initialize the scanner
+      await this.init();
+
+      // Get the directory container
+      const directoryContainer = document.getElementById('directory-container');
+      if (!directoryContainer) {
+        throw new Error('Directory container not found');
+      }
+
+      // Create the directory structure
+      const directoryStructure = this.dates.map(date => ({
+        name: date.name,
+        displayName: date.displayName,
+        files: date.files.map(file => ({
+          path: file.path.replace(/\\/g, '/'),
+          name: file.name,
+          title: file.title || file.name.replace('.md', '')
+        }))
+      }));
+
+      log(`Received ${this.dates.length} date directories`);
+      log('Creating simplified directory structure');
+
+      // Create the directory view
+      directoryContainer.innerHTML = this.createDirectoryView(directoryStructure);
+
+      // Initialize any interactive elements
+      this.initializeDirectoryInteractions(directoryContainer);
+
+      // Extract spans from the first file if available
+      if (this.dates.length > 0 && this.dates[0].files.length > 0) {
+        const firstFile = this.dates[0].files[0];
+        try {
+          const spans = await this.extractSpans(firstFile.path);
+          if (spans && spans.length > 0) {
+            log('No headers case - Root node has wikilinks:');
+            this.initializeWikilinks(spans);
+          }
+        } catch (error) {
+          console.warn('Error extracting spans:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error in initDirectoryView:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Extract spans from a markdown file
+   * @param {string} filePath Path to the markdown file
+   * @returns {Promise<Array>} Array of span objects
+   */
+  async extractSpans(filePath) {
+    try {
+      const url = this.getFileUrl(filePath);
+      if (window.appLog) {
+        appLog.debug(`Extracting spans from: ${url}`);
+      }
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}: ${response.status}`);
+      }
+      const text = await response.text();
+      return this.parseSpans(text);
+    } catch (error) {
+      console.warn(`Error extracting spans from ${filePath}:`, error);
+      return [];
+    }
   }
 }
 

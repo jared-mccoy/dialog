@@ -3,6 +3,11 @@
  * Contains methods for handling animation processing
  */
 
+// Load the necessary functions
+// Add these imports at the top of the file
+// Note: You'll need to adjust the import path based on the actual file structure
+import { shouldDisplaySpeakerName, getSpeakerDisplayName } from '../../converter/utils/speakerIconMapper.js';
+
 /**
  * Animate a header with simple fade-in animation
  * @param {Element} header - The header element to animate
@@ -88,6 +93,43 @@ export function processNextInQueue(animator) {
     animator.animationInProgress = true;
     const currentMsg = animator.animationQueue.shift().element;
     
+    // Check if this is a direct-text element (empty speaker tags)
+    const isDirectText = currentMsg.getAttribute('data-speaker') === 'direct-text';
+
+    // If it's a direct-text element, we skip the typing indicator and show it immediately
+    if (isDirectText) {
+      // Mark message as processed to avoid double animations
+      currentMsg.setAttribute('data-observed', 'processed');
+      
+      // Get the read delay if this isn't the first message
+      const visibleCount = document.querySelectorAll('.message.visible').length;
+      const isFirstMessage = visibleCount === 0;
+      
+      // Find the last visible message for read delay
+      const lastVisibleMessage = Array.from(document.querySelectorAll('.message.visible'))
+        .slice(-1)[0] || null;
+        
+      // Calculate a shorter read delay for direct-text elements
+      const readDelay = isFirstMessage ? 0 : Math.min(
+        animator.calculateReadDelay(lastVisibleMessage) / 2, 
+        500
+      );
+      
+      setTimeout(() => {
+        // Show the direct-text with a simple fade in
+        currentMsg.classList.remove('hidden');
+        currentMsg.classList.add('visible');
+        
+        // Process next item in queue after a short delay
+        setTimeout(() => {
+          animator.animationInProgress = false;
+          animator.processNextInQueue();
+        }, 300);
+      }, readDelay);
+      
+      return; // Exit early, we've handled this item
+    }
+    
     // Determine the speaker type from the message class
     const isUser = currentMsg.classList.contains('user');
     const isSpeakerC = currentMsg.classList.contains('speakerC');
@@ -152,24 +194,59 @@ export function processNextInQueue(animator) {
       // Create typing indicator with appropriate class based on speaker type
       const typingIndicator = document.createElement('div');
       
-      // Determine the correct typing indicator class
-      let typingClass = 'typing-indicator';
+      // Determine speaker type
+      let speakerType = 'agent';
       if (isUser) {
-        typingClass += ' user-typing';
+        speakerType = 'user';
       } else if (isSpeakerC) {
-        typingClass += ' speakerC-typing';
+        speakerType = 'speakerC';
       } else if (isSpeakerD) {
-        typingClass += ' speakerD-typing';
+        speakerType = 'speakerD';
       } else if (isSpeakerE) {
-        typingClass += ' speakerE-typing';
+        speakerType = 'speakerE';
       } else if (isGenericSpeaker) {
-        typingClass += ' generic-speaker-typing';
+        speakerType = 'generic-speaker';
       } else if (isRandom) {
-        typingClass += ' random-typing';
+        speakerType = 'random';
       }
       
-      typingIndicator.className = typingClass;
-      typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+      // Base class - typing-indicator
+      typingIndicator.className = 'typing-indicator';
+      
+      // Set data attribute for speaker type
+      typingIndicator.setAttribute('data-speaker', speakerType);
+      
+      // Set the same data-speaker-icon as the message for consistent icon display
+      const speakerIcon = currentMsg.getAttribute('data-speaker-icon');
+      if (speakerIcon) {
+        typingIndicator.setAttribute('data-speaker-icon', speakerIcon);
+      }
+      
+      // Set the same data-color-key as the message for consistent coloring
+      const colorKey = currentMsg.getAttribute('data-color-key');
+      if (colorKey) {
+        typingIndicator.setAttribute('data-color-key', colorKey);
+      }
+      
+      // Add speaker name caption for custom speakers
+      const speakerNameFromMsg = currentMsg.getAttribute('data-speaker');
+      if (speakerNameFromMsg) {
+        // Always display speaker name in typing indicator just like in message bubbles
+        typingIndicator.setAttribute('data-display-speaker', 'true');
+        const displayName = getSpeakerDisplayName(speakerNameFromMsg);
+        
+        // Create caption element
+        const caption = document.createElement('div');
+        caption.className = 'speaker-caption';
+        caption.textContent = displayName;
+        typingIndicator.appendChild(caption);
+      }
+      
+      // Create the three dots separately instead of using innerHTML
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('span');
+        typingIndicator.appendChild(dot);
+      }
       
       // Set size attribute based on message length
       if (!isUser) { // Only apply to non-user messages
@@ -222,8 +299,14 @@ export function processNextInQueue(animator) {
       if (lastVisibleElement) {
         lastVisibleElement.after(typingIndicator);
       } else {
-        // If no visible elements yet, add to beginning of container
-        container.prepend(typingIndicator);
+        // If no visible elements yet, add it to beginning but INSIDE the .chat-container
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+          chatContainer.prepend(typingIndicator);
+        } else {
+          // Fallback to container if .chat-container doesn't exist yet
+          container.prepend(typingIndicator);
+        }
       }
       
       // Flag that there's a typing indicator showing
@@ -258,19 +341,70 @@ export function processNextInQueue(animator) {
         window.debugLog(`Typing time for message: ${typingTime}ms (${speakerType})`, 'animation');
       }
       
-      // After typing animation completes, show the message
+      // After typing animation completes, create a visual duplicate for fade-out and show the message
       setTimeout(() => {
-        // Hide the typing indicator
-        typingIndicator.classList.remove('visible');
+        // Create a visual clone of the typing indicator for the fade-out effect
+        const visualClone = typingIndicator.cloneNode(true);
+        const rect = typingIndicator.getBoundingClientRect();
+        
+        // Style the clone to be positioned exactly where the original is
+        visualClone.style.position = 'fixed';
+        visualClone.style.top = rect.top + 'px';
+        visualClone.style.left = rect.left + 'px';
+        visualClone.style.width = rect.width + 'px';
+        visualClone.style.height = rect.height + 'px';
+        visualClone.style.zIndex = '10';
+        visualClone.style.margin = '0';
+        visualClone.style.transform = 'none';
+        visualClone.style.transition = 'opacity 400ms var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1))';
+        
+        // Add to body
+        document.body.appendChild(visualClone);
+        
+        // Remove the original immediately to free up the layout
+        typingIndicator.remove();
         animator.typingIndicatorVisible = false;
         
-        // Relax the viewport check - just make sure message is near viewport
-        const rect = currentMsg.getBoundingClientRect();
+        // Trigger fade-out animation on the clone
+        setTimeout(() => {
+          visualClone.classList.remove('visible');
+          visualClone.style.opacity = '0';
+          
+          // Remove clone after animation completes
+          setTimeout(() => {
+            visualClone.remove();
+          }, 500);
+        }, 50);
         
-        // Consider a message "in view" if it's even partially in viewport or within 300px below
-        const isInView = rect.top < window.innerHeight + 300;
+        // Get the message rect for viewport checking
+        const rect2 = currentMsg.getBoundingClientRect();
         
-        // If it's anywhere close to view, show the message
+        // Get animation buffer size from CSS variables - default to 200px if not defined
+        const chatContainer = document.querySelector('.chat-container');
+        let animationBuffer = 200;
+        
+        // Check if we're on mobile using the CSS variable
+        if (chatContainer && window.getComputedStyle) {
+          const computedStyle = window.getComputedStyle(document.documentElement);
+          const bufferValue = computedStyle.getPropertyValue('--animation-visibility-buffer').trim();
+          
+          if (bufferValue) {
+            // Parse the buffer value (removing 'px' if present)
+            const parsedBuffer = parseInt(bufferValue.replace('px', ''), 10);
+            if (!isNaN(parsedBuffer)) {
+              animationBuffer = parsedBuffer;
+            }
+          }
+          
+          if (window.debugLog) {
+            window.debugLog(`Using animation buffer of ${animationBuffer}px`, 'viewport');
+          }
+        }
+        
+        // Consider a message "in view" if it's within the defined buffer zone
+        const isInView = rect2.top < window.innerHeight + animationBuffer;
+        
+        // If it's within the buffer zone, show the message
         if (isInView) {
           // Update the viewport state tracking
           if (!animator.hasOwnProperty('lastViewportState') || animator.lastViewportState !== 'in-view') {
@@ -283,12 +417,9 @@ export function processNextInQueue(animator) {
           // Update the last sender type
           animator.lastSenderWasUser = isUser;
           
-          // Show the message with animation
+          // Show the message immediately
           currentMsg.classList.remove('hidden');
           currentMsg.classList.add('visible');
-          
-          // Remove the indicator after its transition completes
-          setTimeout(() => typingIndicator.remove(), 300);
           
           // Wait for message animation to complete before processing next
           setTimeout(() => {
@@ -301,12 +432,9 @@ export function processNextInQueue(animator) {
           if (!animator.hasOwnProperty('lastViewportState') || animator.lastViewportState !== 'out-of-view') {
             animator.lastViewportState = 'out-of-view';
             if (window.debugLog) {
-              window.debugLog("Messages far from viewport, waiting for user to scroll into view", 'viewport');
+              window.debugLog(`Messages far from viewport (${Math.round(rect2.top - window.innerHeight)}px below), waiting for user to scroll into view`, 'viewport');
             }
           }
-          
-          // Remove the indicator immediately since we're not showing the message
-          typingIndicator.remove();
           
           // Add message to failed list to retry later
           animator.animationFailedMessages.push(currentMsg);
@@ -315,9 +443,9 @@ export function processNextInQueue(animator) {
           setTimeout(() => {
             animator.animationInProgress = false;
             animator.processNextInQueue();
-          }, 300);
+          }, 100);
         }
-      }, typingTime); // Use calculated dynamic typing time instead of fixed values
+      }, typingTime);
     }, readDelay); // Add read delay before showing typing indicator
   }
 } 

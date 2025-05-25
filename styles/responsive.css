@@ -1,0 +1,385 @@
+/* Responsive styles for mobile devices only */
+
+/* Mobile spacing adjustments using CSS variables for consistency */
+:root {
+  /* Base spacing multipliers - will be adjusted in media queries */
+  --spacing-unit: 1rem;
+  --spacing-multiplier: 1;
+  --content-padding-multiplier: 1;
+  --layout-density: 1;
+  --avatar-scale: 1;
+  --bubble-padding-x: 16px;
+  --bubble-padding-y: 12px;
+  --section-header-padding: 8px 12px;
+  --nav-icon-size: 32px;
+  --nav-container-size: 44px;
+  --animation-visibility-buffer: 200px; /* Default animation buffer */
+}
+
+/* Only apply these styles on smaller screens */
+@media screen and (max-width: 600px) {
+  :root {
+    /* Reduce spacing globally by adjusting multipliers */
+    --spacing-multiplier: 0.85;
+    --content-padding-multiplier: 0.7;
+    --layout-density: 0.9;
+    --avatar-scale: 0.85; /* Increased from 0.65 to make icons larger */
+    --bubble-padding-x: 14px;
+    --bubble-padding-y: 10px;
+    --section-header-padding: 6px 10px;
+    --nav-icon-size: 28px;
+    --nav-container-size: 40px;
+    --animation-visibility-buffer: 100px; /* Reduced buffer for mobile */
+    --consistent-padding: 10px; /* New consistent padding variable */
+  }
+  
+  /* Make header more compact */
+  .site-header {
+    padding: calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier)) 0 
+             calc(0.75 * var(--spacing-unit) * var(--spacing-multiplier));
+    margin-bottom: calc(var(--spacing-unit) * var(--spacing-multiplier));
+  }
+  
+  /* Prevent title from wrapping */
+  .site-title {
+    padding: var(--consistent-padding);
+  }
+  
+  .site-title h1 {
+    font-size: 1.1rem;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  
+  /* Header buttons */
+  .header-controls button {
+    margin-left: calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier));
+    padding: 6px;
+  }
+  
+  /* Navigation controls - unified sizing */
+  .nav-link {
+    width: var(--nav-container-size);
+    height: var(--nav-container-size);
+    border-width: 2px; /* Increased from 1px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Remove padding, use centering for alignment */
+  }
+  
+  .nav-link svg {
+    width: var(--nav-icon-size);
+    height: var(--nav-icon-size);
+  }
+  
+  /* Chat title in navigation */
+  .chat-title {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: var(--consistent-padding);
+    border-width: 2px; /* Increased from 1px */
+  }
+  
+  /* Remove body overflow restrictions that might clip avatars */
+  body {
+    overflow-x: visible !important;
+  }
+  
+  /* Reduce chat container padding for mobile */
+  .chat-container {
+    /* Create space for sliding animation without pushing content off-screen */
+    padding-left: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
+    padding-right: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
+    overflow: visible !important; /* Allow avatars to extend beyond container */
+    /* Add property to be used by JavaScript animation detection */
+    --mobile-animation-cutoff: true;
+    position: relative; /* Establish positioning context */
+  }
+  
+  /* Make message bubbles narrower to allow more space for avatars */
+  .message {
+    max-width: 85%;
+    padding: var(--consistent-padding);
+    margin-bottom: calc(var(--spacing-unit) * var(--spacing-multiplier));
+    border-width: 2px; /* Increased from 1px */
+    position: relative; /* For proper positioning context */
+    overflow: visible !important; /* Allow avatar to extend outside */
+    transform: translateX(0); 
+  }
+  
+  /* Ensure wrapper doesn't clip elements */
+  .wrapper {
+    overflow: visible !important;
+  }
+  
+  /* Section headers with proper padding */
+  .chat-section-header {
+    padding: var(--consistent-padding);
+    margin: calc(0.75 * var(--spacing-unit) * var(--spacing-multiplier)) 0 
+            calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier));
+  }
+  
+  /* Fix nested section padding on mobile */
+  .chat-section {
+    padding-left: 0; /* Remove left padding on all sections for mobile */
+    margin-bottom: calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier));
+    overflow: visible; /* Ensure avatars aren't clipped */
+  }
+  
+  /* Ensure root sections have proper spacing */
+  .chat-container > .chat-section {
+    padding-left: 0;
+    margin-bottom: calc(0.75 * var(--spacing-unit) * var(--spacing-multiplier));
+  }
+  
+  /* Content spacing adjustments */
+  .message p + p {
+    margin-top: calc(0.5 * var(--spacing-unit) * var(--layout-density));
+  }
+  
+  .message ul, 
+  .message ol {
+    margin-top: calc(0.5 * var(--spacing-unit) * var(--layout-density));
+    margin-bottom: calc(0.5 * var(--spacing-unit) * var(--layout-density));
+    padding-left: calc(var(--spacing-unit) * var(--layout-density));
+  }
+  
+  .message li {
+    margin-bottom: calc(0.25 * var(--spacing-unit) * var(--layout-density));
+  }
+  
+  /* Unify avatar styling for all components */
+  .message,
+  .typing-indicator {
+    --avatar-size: calc(54px * var(--avatar-scale));
+    --avatar-offset: calc(-65px * var(--avatar-scale)); /* Increased offset for larger avatars */
+  }
+  
+  /* Fix avatar positioning and sizing for all components */
+  .message::before,
+  .typing-indicator::before {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    border-width: 2px; /* Increased to match message bubbles */
+    z-index: 100; /* Ensure avatars appear above all content */
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+  }
+  
+  /* Position based on user vs non-user for all components */
+  .message[data-speaker="user"]::before,
+  .typing-indicator[data-speaker="user"]::before {
+    right: var(--avatar-offset);
+  }
+  
+  .message:not([data-speaker="user"])::before,
+  .typing-indicator:not([data-speaker="user"])::before {
+    left: var(--avatar-offset);
+  }
+  
+  /* Direct text elements (stage directions) should have minimal spacing */
+  .message[data-speaker="direct-text"] {
+    margin: 0.3rem auto;
+    padding: 3px 12px;
+  }
+  
+  /* Typing indicator adjustments */
+  .typing-indicator {
+    overflow: visible !important; /* Allow avatar to extend outside */
+    position: relative; /* For proper positioning context */
+  }
+  
+  .typing-indicator.visible {
+    padding: var(--consistent-padding);
+    border-width: 2px; /* Increased to match message bubbles */
+    transform: scale(0.9);
+    margin-top: 14px; /* Match message top margin */
+    margin-bottom: 20px; /* Match message bottom margin */
+  }
+  
+  .typing-indicator span {
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+  }
+  
+  /* Animation for messages - slide into the margin space */
+  .message[data-speaker="user"].speaking:not(.selected),
+  .message[data-speaker="user"].selected {
+    transform: translateX(-25px); /* Reduced slide to keep content visible */
+  }
+  
+  .message:not([data-speaker="user"]).speaking:not(.selected),
+  .message:not([data-speaker="user"]).selected,
+  .speakerC.speaking:not(.selected),
+  .speakerC.selected,
+  .speakerD.speaking:not(.selected),
+  .speakerD.selected,
+  .speakerE.speaking:not(.selected),
+  .speakerE.selected,
+  .generic-speaker.speaking:not(.selected),
+  .generic-speaker.selected,
+  .random.speaking:not(.selected),
+  .random.selected {
+    transform: translateX(25px); /* Reduced slide to keep content visible */
+  }
+  
+  /* Show icon on hover/speaking - explicitly set opacity */
+  .message.speaking::before,
+  .message.selected::before,
+  .message.speaking::after,
+  .message.selected::after {
+    opacity: 1;
+  }
+  
+  /* Fixed footer navigation */
+  .chat-nav.footer-nav {
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); /* Add safe area for notched phones */
+    width: calc(100% - 20px); /* Slightly wider on mobile */
+    /* Use the same transition from main CSS - no overrides */
+  }
+  
+  /* Add padding to the bottom of content to prevent footer from covering content */
+  .content {
+    padding-bottom: 70px;
+  }
+}
+
+/* Very small screens */
+@media screen and (max-width: 400px) {
+  :root {
+    /* Further reduce spacing for very small screens */
+    --spacing-multiplier: 0.7;
+    --content-padding-multiplier: 0.5;
+    --layout-density: 0.8;
+    --avatar-scale: 0.75; /* Increased from 0.6 to make icons larger on very small screens */
+    --bubble-padding-x: 12px;
+    --bubble-padding-y: 8px;
+    --section-header-padding: 5px 8px;
+    --nav-icon-size: 24px;
+    --nav-container-size: 36px;
+    --animation-visibility-buffer: 80px; /* Even smaller buffer for tiny screens */
+    --consistent-padding: 8px; /* Smaller consistent padding for very small screens */
+  }
+
+  /* Further compact header */
+  .site-title h1 {
+    font-size: 1rem;
+  }
+  
+  /* Adjust container padding for sliding animation */
+  .chat-container {
+    padding-left: calc(1.75 * var(--spacing-unit) * var(--content-padding-multiplier));
+    padding-right: calc(1.75 * var(--spacing-unit) * var(--content-padding-multiplier));
+  }
+  
+  /* Make header controls more compact */
+  .theme-toggle,
+  .animation-toggle,
+  .settings-toggle {
+    width: var(--nav-container-size);
+    height: var(--nav-container-size);
+    padding: 6px;
+  }
+  
+  /* Make avatars slightly smaller */
+  .message,
+  .typing-indicator {
+    --avatar-size: calc(50px * var(--avatar-scale));
+    --avatar-offset: calc(-58px * var(--avatar-scale)); /* Adjusted offset for better positioning */
+  }
+  
+  /* Animation for messages - slightly less slide distance */
+  .message[data-speaker="user"].speaking:not(.selected),
+  .message[data-speaker="user"].selected {
+    transform: translateX(-20px); /* Reduced slide to keep content visible */
+  }
+  
+  .message:not([data-speaker="user"]).speaking:not(.selected),
+  .message:not([data-speaker="user"]).selected,
+  .speakerC.speaking:not(.selected),
+  .speakerC.selected,
+  .speakerD.speaking:not(.selected),
+  .speakerD.selected,
+  .speakerE.speaking:not(.selected),
+  .speakerE.selected,
+  .generic-speaker.speaking:not(.selected),
+  .generic-speaker.selected,
+  .random.speaking:not(.selected),
+  .random.selected {
+    transform: translateX(20px); /* Reduced slide to keep content visible */
+  }
+  
+  /* Theme toggle svg control size */
+  .theme-toggle svg,
+  .animation-toggle svg,
+  .settings-toggle svg {
+    width: var(--nav-icon-size);
+    height: var(--nav-icon-size);
+  }
+  
+  /* Further reduce border thickness but still keep it substantial */
+  .message {
+    border-width: 1.5px; /* Slightly reduced but still thicker than original 1px */
+  }
+  
+  .nav-link,
+  .chat-title {
+    border-width: 1.5px; /* Consistent with message bubbles */
+  }
+  
+  /* Chat title smaller text */
+  .chat-title {
+    font-size: 0.9rem;
+    padding: var(--consistent-padding);
+  }
+  
+  /* Increase message width to use more space */
+  .message {
+    max-width: 88%; /* Balance between space for content and avatars */
+  }
+  
+  /* Further reduce section spacing */
+  .chat-section-header {
+    margin: calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier)) 0 
+            calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier));
+  }
+  
+    /* Further reduce typing indicator */  .typing-indicator.visible {    padding: var(--consistent-padding);    border-width: 1.5px; /* Match other elements */  }    /* Typing indicator spacing is now handled in chat-animations.css */    /* Further reduce direct text spacing on very small screens */
+  .message[data-speaker="direct-text"] {
+    margin: 0.25rem auto;
+    padding: 2px 12px;
+  }
+  
+  .typing-indicator span {
+    width: 5px;
+    height: 5px;
+    margin: 0 2px;
+  }
+  
+  /* Typing indicator and avatar borders for very small screens */
+  .message::after,
+  .typing-indicator::after {
+    border-width: 1.5px; /* Match other elements */
+  }
+  
+  /* Typography improvements for very small screens */
+  .message p, 
+  .message li,
+  .message span:not(h1, h2, h3, h4, h5, h6) {
+    font-size: 0.75rem;
+  }
+  
+  /* Further reduce typing indicator */
+  .typing-indicator.visible {
+    padding: var(--consistent-padding);
+    border-width: 1.5px; /* Match other elements */
+    margin-top: 14px; /* Maintain consistent spacing */
+    margin-bottom: 20px; /* Maintain consistent spacing */
+  }
+} 

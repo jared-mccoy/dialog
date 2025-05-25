@@ -20,6 +20,17 @@ const DEFAULT_SETTINGS = {
       minReadTime: 300,
       maxReadTime: 3000,
       variancePercentage: 20
+    },
+    timeEffects: {
+      transitionDelay: 0.5,
+      easing: "cubic-bezier(0.19, 1, 0.22, 1)"
+    }
+  },
+  logging: {
+    mode: "production",
+    levels: {
+      production: ["warning", "error", "critical"],
+      debug: ["debug", "info", "warning", "error", "critical"]
     }
   },
   theme: {
@@ -55,8 +66,10 @@ let appSettings = { ...DEFAULT_SETTINGS };
  */
 async function loadSettings() {
   try {
-    if (window.debugLog) {
-      window.debugLog('Loading application settings');
+    if (window.appLog) {
+      appLog.debug('Loading application settings');
+    } else {
+      console.info('Loading application settings');
     }
     
     const response = await fetch('settings.json');
@@ -69,8 +82,10 @@ async function loadSettings() {
     // Merge with defaults to ensure all properties exist
     appSettings = mergeWithDefaults(settings, DEFAULT_SETTINGS);
     
-    if (window.debugLog) {
-      window.debugLog('Settings loaded successfully');
+    if (window.appLog) {
+      appLog.debug('Settings loaded successfully');
+    } else {
+      console.info('Settings loaded successfully');
     }
     
     // Apply any immediate settings
@@ -91,28 +106,41 @@ function applySettings() {
     // Get current theme
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     
-    // Apply theme settings depending on current theme
-    if (currentTheme === 'dark') {
-      document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentB);
-      document.documentElement.style.setProperty('--user-color', appSettings.theme.accentA);
-    } else {
-      document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentA);
-      document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
-    }
-    
-    // Set other accent colors
-    document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#e63946');
-    document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#2a9d8f');
-    document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#8338ec');
+    // Apply accent colors from settings as CSS variables
+    // The theme.css will derive the specific role colors (user/assistant) based on the theme
+    document.documentElement.style.setProperty('--accentA-color', appSettings.theme.accentA);
+    document.documentElement.style.setProperty('--accentB-color', appSettings.theme.accentB);
+    document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#000000');
+    document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#000000');
+    document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#000000');
+    document.documentElement.style.setProperty('--accentF-color', appSettings.theme.accentF || '#000000');
+    document.documentElement.style.setProperty('--accentG-color', appSettings.theme.accentG || '#000000');
+    document.documentElement.style.setProperty('--accentH-color', appSettings.theme.accentH || '#000000');
+    document.documentElement.style.setProperty('--accentI-color', appSettings.theme.accentI || '#000000');
+    document.documentElement.style.setProperty('--accentJ-color', appSettings.theme.accentJ || '#000000');
+    document.documentElement.style.setProperty('--accentK-color', appSettings.theme.accentK || '#000000');
+    document.documentElement.style.setProperty('--accentL-color', appSettings.theme.accentL || '#000000');
     document.documentElement.style.setProperty('--generic-color', appSettings.theme.genericAccent || '#909090');
     
     // Set semi-transparent versions
-    document.documentElement.style.setProperty('--assistant-color-light', document.documentElement.style.getPropertyValue('--assistant-color') + '71');
-    document.documentElement.style.setProperty('--user-color-light', document.documentElement.style.getPropertyValue('--user-color') + '78');
-    document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#e63946') + '71');
-    document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#2a9d8f') + '71');
-    document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#8338ec') + '71');
+    document.documentElement.style.setProperty('--accentA-color-light', appSettings.theme.accentA + '71');
+    document.documentElement.style.setProperty('--accentB-color-light', appSettings.theme.accentB + '78');
+    document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentF-color-light', (appSettings.theme.accentF || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentG-color-light', (appSettings.theme.accentG || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentH-color-light', (appSettings.theme.accentH || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentI-color-light', (appSettings.theme.accentI || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentJ-color-light', (appSettings.theme.accentJ || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentK-color-light', (appSettings.theme.accentK || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentL-color-light', (appSettings.theme.accentL || '#000000') + '71');
     document.documentElement.style.setProperty('--generic-color-light', (appSettings.theme.genericAccent || '#909090') + '71');
+    
+    // Set hover effect settings
+    const timeEffects = appSettings.chat.timeEffects || { transitionDelay: 0.5, easing: "cubic-bezier(0.19, 1, 0.22, 1)" };
+    document.documentElement.style.setProperty('--hover-transition-duration', `${timeEffects.transitionDelay}s`);
+    document.documentElement.style.setProperty('--hover-transition-timing', timeEffects.easing);
     
     // Set animation enabled state
     const animationEnabled = appSettings.chat.typingAnimation.enabled;
@@ -124,10 +152,36 @@ function applySettings() {
       animationToggle.setAttribute('data-state', animationEnabled ? 'enabled' : 'disabled');
     }
     
+    // Apply logging settings
+    applyLoggingSettings();
+    
     // Trigger a settings changed event
     dispatchSettingsChangedEvent();
   } catch (error) {
     console.error('Error applying settings:', error);
+  }
+}
+
+/**
+ * Apply logging settings based on current configuration
+ */
+function applyLoggingSettings() {
+  const loggingMode = appSettings.logging.mode;
+  const allowedLevels = appSettings.logging.levels[loggingMode] || [];
+  
+  // If our logging system is already initialized, just update it
+  if (window.appLog && window.appLog.setMode) {
+    // This will update both appLog methods and the global debugLog function
+    window.appLog.setMode(loggingMode, appSettings.logging.levels);
+  } else {
+    console.warn('Logging system not properly initialized');
+  }
+  
+  // Store settings in localStorage for persistence across page loads
+  try {
+    localStorage.setItem('appSettings', JSON.stringify(appSettings));
+  } catch (e) {
+    console.warn('Failed to save settings to localStorage:', e);
   }
 }
 
@@ -214,7 +268,7 @@ function setupSettingsPanel() {
         <div>
           <label>
             <input type="checkbox" id="animation-enabled">
-            Enable typing animation
+            <span>Enable typing animation</span>
           </label>
         </div>
         <label for="typing-applies-to">Apply typing animation to:</label>
@@ -224,14 +278,23 @@ function setupSettingsPanel() {
           <option value="user">User messages only</option>
         </select>
         
-        <label for="words-per-minute">Words Per Minute:</label>
-        <input type="number" id="words-per-minute" min="50" max="1000" step="10">
+        <div class="settings-row">
+          <div class="settings-col">
+            <label for="words-per-minute">WPM:</label>
+            <input type="number" id="words-per-minute" min="50" max="1000" step="10">
+          </div>
+        </div>
         
-        <label for="min-typing-time">Minimum Typing Time (ms):</label>
-        <input type="number" id="min-typing-time" min="200" max="3000" step="100">
-        
-        <label for="max-typing-time">Maximum Typing Time (ms):</label>
-        <input type="number" id="max-typing-time" min="1000" max="10000" step="100">
+        <div class="settings-row">
+          <div class="settings-col">
+            <label for="min-typing-time">Min Time (ms):</label>
+            <input type="number" id="min-typing-time" min="200" max="3000" step="100">
+          </div>
+          <div class="settings-col">
+            <label for="max-typing-time">Max Time (ms):</label>
+            <input type="number" id="max-typing-time" min="1000" max="10000" step="100">
+          </div>
+        </div>
         
         <label for="variance-percentage">Typing Variance (%):</label>
         <input type="number" id="variance-percentage" min="0" max="50" step="5">
@@ -242,42 +305,81 @@ function setupSettingsPanel() {
         <div>
           <label>
             <input type="checkbox" id="read-delay-enabled">
-            Add reading delay between messages
+            <span>Add reading delay between messages</span>
           </label>
         </div>
         
         <label for="read-delay-wpm">Reading Speed (WPM):</label>
         <input type="number" id="read-delay-wpm" min="100" max="1500" step="50">
         
-        <label for="min-read-time">Minimum Read Time (ms):</label>
-        <input type="number" id="min-read-time" min="0" max="2000" step="100">
-        
-        <label for="max-read-time">Maximum Read Time (ms):</label>
-        <input type="number" id="max-read-time" min="500" max="8000" step="100">
+        <div class="settings-row">
+          <div class="settings-col">
+            <label for="min-read-time">Min Time (ms):</label>
+            <input type="number" id="min-read-time" min="0" max="2000" step="100">
+          </div>
+          <div class="settings-col">
+            <label for="max-read-time">Max Time (ms):</label>
+            <input type="number" id="max-read-time" min="500" max="8000" step="100">
+          </div>
+        </div>
         
         <label for="read-variance">Reading Variance (%):</label>
         <input type="number" id="read-variance" min="0" max="50" step="5">
       </div>
       
       <div class="setting-group">
+        <h4>Logging</h4>
+        <label for="logging-mode">Logging Mode:</label>
+        <select id="logging-mode" class="settings-select">
+          <option value="production">Production (Warnings & Errors only)</option>
+          <option value="debug">Debug (All logs)</option>
+        </select>
+      </div>
+      
+      <div class="setting-group">
         <h4>Theme Colors</h4>
-        <label for="accent-a">Accent A (Assistant):</label>
-        <input type="text" id="accent-a">
         
-        <label for="accent-b">Accent B (User):</label>
-        <input type="text" id="accent-b">
-        
-        <label for="accent-c">Accent C (Speaker C):</label>
-        <input type="text" id="accent-c">
-        
-        <label for="accent-d">Accent D (Speaker D):</label>
-        <input type="text" id="accent-d">
-        
-        <label for="accent-e">Accent E (Speaker E):</label>
-        <input type="text" id="accent-e">
-        
-        <label for="generic-accent">Generic Accent (Other Speakers):</label>
-        <input type="text" id="generic-accent">
+        <div class="color-grid">
+          <div class="color-row">
+            <label for="accent-a">Assistant:</label>
+            <input type="text" id="accent-a" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-b">User:</label>
+            <input type="text" id="accent-b" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-c">Speaker C:</label>
+            <input type="text" id="accent-c" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-d">Speaker D:</label>
+            <input type="text" id="accent-d" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-e">Speaker E:</label>
+            <input type="text" id="accent-e" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-f">Speaker F:</label>
+            <input type="text" id="accent-f" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-g">Speaker G:</label>
+            <input type="text" id="accent-g" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="generic-accent">Generic:</label>
+            <input type="text" id="generic-accent" class="color-input">
+          </div>
+        </div>
       </div>
       
       <div class="settings-actions">
@@ -298,13 +400,31 @@ function setupSettingsPanel() {
     cancelButton.addEventListener('click', () => {
       toggleSettingsPanel(false);
     });
+    
+    // Add click event listener to close panel when clicking outside
+    document.addEventListener('click', (event) => {
+      const panel = document.getElementById('settings-panel');
+      const settingsToggle = document.getElementById('settings-toggle');
+      
+      if (panel && panel.classList.contains('visible')) {
+        // If the click is outside the panel and not on the settings toggle button
+        if (!panel.contains(event.target) && event.target !== settingsToggle && !settingsToggle.contains(event.target)) {
+          toggleSettingsPanel(false);
+        }
+      }
+    }, true);
   }
   
   // Update the panel with current settings
   populateSettingsPanel();
   
-  // Show the panel
-  toggleSettingsPanel(true);
+  // Show or toggle the panel
+  const panel = document.getElementById('settings-panel');
+  if (panel.classList.contains('visible')) {
+    toggleSettingsPanel(false);
+  } else {
+    toggleSettingsPanel(true);
+  }
 }
 
 /**
@@ -333,12 +453,17 @@ function populateSettingsPanel() {
   panel.querySelector('#max-read-time').value = readDelay.maxReadTime;
   panel.querySelector('#read-variance').value = readDelay.variancePercentage;
   
+  // Logging settings
+  panel.querySelector('#logging-mode').value = appSettings.logging.mode;
+  
   // Theme settings
   panel.querySelector('#accent-a').value = theme.accentA;
   panel.querySelector('#accent-b').value = theme.accentB;
   panel.querySelector('#accent-c').value = theme.accentC || '';
   panel.querySelector('#accent-d').value = theme.accentD || '';
   panel.querySelector('#accent-e').value = theme.accentE || '';
+  panel.querySelector('#accent-f').value = theme.accentF || '';
+  panel.querySelector('#accent-g').value = theme.accentG || '';
   panel.querySelector('#generic-accent').value = theme.genericAccent || '';
 }
 
@@ -366,12 +491,17 @@ function saveSettingsFromPanel() {
   newSettings.chat.readDelay.maxReadTime = parseInt(panel.querySelector('#max-read-time').value);
   newSettings.chat.readDelay.variancePercentage = parseInt(panel.querySelector('#read-variance').value);
   
+  // Logging settings
+  newSettings.logging.mode = panel.querySelector('#logging-mode').value;
+  
   // Theme settings
   newSettings.theme.accentA = panel.querySelector('#accent-a').value;
   newSettings.theme.accentB = panel.querySelector('#accent-b').value;
   newSettings.theme.accentC = panel.querySelector('#accent-c').value || null;
   newSettings.theme.accentD = panel.querySelector('#accent-d').value || null;
   newSettings.theme.accentE = panel.querySelector('#accent-e').value || null;
+  newSettings.theme.accentF = panel.querySelector('#accent-f').value || null;
+  newSettings.theme.accentG = panel.querySelector('#accent-g').value || null;
   newSettings.theme.genericAccent = panel.querySelector('#generic-accent').value || null;
   
   // Update settings
@@ -391,6 +521,25 @@ function toggleSettingsPanel(show) {
   
   if (show) {
     panel.classList.add('visible');
+    
+    // Update select elements to ensure consistent styling
+    const selects = panel.querySelectorAll('select.settings-select');
+    selects.forEach(select => {
+      // Ensure text color matches the theme
+      select.style.color = 'var(--accent-color)';
+      
+      // Add custom styling for options
+      const options = select.querySelectorAll('option');
+      options.forEach(option => {
+        option.style.backgroundColor = 'var(--background-color)';
+        option.style.color = 'var(--accent-color)';
+      });
+      
+      // Add event listener to update selected option styling
+      select.addEventListener('change', () => {
+        select.style.color = 'var(--accent-color)';
+      });
+    });
   } else {
     panel.classList.remove('visible');
   }
@@ -414,5 +563,6 @@ window.appSettings = {
   load: loadSettings,
   get: getSettings,
   update: updateSettings,
-  showPanel: setupSettingsPanel
+  showPanel: setupSettingsPanel,
+  log: window.appLog
 }; 

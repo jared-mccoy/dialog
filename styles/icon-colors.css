@@ -1,0 +1,98 @@
+/* SVG Icon Coloring
+ * This stylesheet colors the monochrome SVG icons based on context and theme
+ * Simplified to use direct CSS variables instead of complex filters
+ */
+
+/* Base icon styling */
+.icon-svg {
+  color: currentColor; /* Default: inherit from parent */
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Theme-based coloring for navigation icons */
+[data-theme="light"] .theme-toggle svg,
+[data-theme="light"] .animation-toggle svg,
+[data-theme="light"] .settings-toggle svg,
+[data-theme="light"] .nav-link svg,
+[data-theme="light"] .section-toggle svg {
+  color: var(--assistant-color);
+}
+
+[data-theme="dark"] .theme-toggle svg,
+[data-theme="dark"] .animation-toggle svg,
+[data-theme="dark"] .settings-toggle svg,
+[data-theme="dark"] .nav-link svg,
+[data-theme="dark"] .section-toggle svg {
+  color: var(--accent-color);
+}
+
+/* Simplified speaker-specific SVG coloring using centralized variables */
+/* Each message will inherit color from its --speaker-color variable */
+.message svg,
+.message img[src$=".svg"] {
+  color: var(--speaker-color, var(--generic-color));
+}
+
+/* Apply speaker color to message icon masks */
+.message::before {
+  content: '';
+  background-color: var(--speaker-color, var(--generic-color));
+}
+
+/* Fix for avatar images - explicitly exclude them from coloring */
+.message img.avatar-image {
+  filter: none !important;
+  color: initial !important;
+}
+
+/* Button hover states */
+.theme-toggle:hover svg,
+.animation-toggle:hover svg,
+.settings-toggle:hover svg,
+.nav-link:hover svg,
+.section-toggle:hover svg {
+  filter: brightness(1.2);
+}
+
+/* Active/selected states */
+.nav-link.active svg,
+.section-toggle[aria-expanded="true"] svg {
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+/* Icon size variations */
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-md {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-lg {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-xl {
+  width: 48px;
+  height: 48px;
+}
+
+/* Transitions for smooth color changes */
+.icon-svg,
+img[src$=".svg"] {
+  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Icon styling for various color schemes */
+.icon-colored {
+  color: var(--accent-color); /* Set the default fill color to accent color */
+  /* Add transitions for smooth color changes */
+  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+} 

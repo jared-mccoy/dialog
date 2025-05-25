@@ -1,0 +1,182 @@
+/* Chat bubble styles */
+
+/* Base message styling */
+.message {
+  margin-bottom: 20px;
+  margin-top: 14px; /* Minimal space for title */
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-width: 70%;
+  position: relative;
+  transition: transform var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
+              border-color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  display: block;
+  overflow: visible; /* Crucial to ensure avatars aren't clipped */
+  border: 2px solid var(--speaker-color-light, var(--assistant-color-light));
+  /* Set initial position as if icons are already showing */
+  transform: translateX(0);
+  cursor: pointer; /* Add pointer cursor to indicate clickability */
+  z-index: 25; /* Ensure the chat bubble is in front of other elements */
+}
+
+/* Apply highlight on hover or when selected */
+.message:hover,
+.message.selected {
+  border-color: var(--speaker-color, var(--assistant-color));
+}
+
+/* User message styling - right side */
+.message[data-speaker="user"] {
+  align-self: flex-end;
+  margin-left: auto;
+  background-color: transparent;
+  transform: translateX(0);
+}
+
+/* User message selected/speaking state - slide toward center ON CLICK ONLY */
+.message[data-speaker="user"].speaking,
+.message[data-speaker="user"].selected {
+  transform: translateX(-40px);
+}
+
+/* Assistant/Agent message styling - left side */
+.message:not([data-speaker="user"]) {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  transform: translateX(0);
+}
+
+/* Assistant message selected/speaking state - slide toward center ON CLICK ONLY */
+.message:not([data-speaker="user"]).speaking,
+.message:not([data-speaker="user"]).selected {
+  transform: translateX(40px);
+}
+
+/* Speaker C message styling */
+.speakerC {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentC-color-light);
+  transform: translateX(0);
+}
+
+.speakerC:hover,
+.speakerC.selected {
+  border-color: var(--accentC-color);
+}
+
+.speakerC.speaking,
+.speakerC.selected {
+  transform: translateX(40px);
+}
+
+/* Speaker D message styling */
+.speakerD {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentD-color-light);
+  transform: translateX(0);
+}
+
+.speakerD:hover,
+.speakerD.selected {
+  border-color: var(--accentD-color);
+}
+
+.speakerD.speaking,
+.speakerD.selected {
+  transform: translateX(40px);
+}
+
+/* Speaker E message styling */
+.speakerE {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentE-color-light);
+  transform: translateX(0);
+}
+
+.speakerE:hover,
+.speakerE.selected {
+  border-color: var(--accentE-color);
+}
+
+.speakerE.speaking,
+.speakerE.selected {
+  transform: translateX(40px);
+}
+
+/* Generic speaker message styling */
+.generic-speaker {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--generic-color-light);
+  transform: translateX(0);
+}
+
+.generic-speaker:hover,
+.generic-speaker.selected {
+  border-color: var(--generic-color);
+}
+
+.generic-speaker.speaking,
+.generic-speaker.selected {
+  transform: translateX(40px);
+}
+
+/* Random speaker message styling */
+.random {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentC-color-light);
+  transform: translateX(0);
+}
+
+.random:hover,
+.random.selected {
+  border-color: var(--accentC-color);
+}
+
+.random.speaking,
+.random.selected {
+  transform: translateX(40px);
+}
+
+/* Custom positioning */
+.message.custom-left {
+  /* Base styles are applied inline */
+}
+
+.message.custom-right {
+  /* Base styles are applied inline */
+}
+
+/* Message content container */
+.message .content-container {
+  margin: 0;
+  padding: 0;
+}
+
+.message .content-container .content {
+  margin: 0;
+  padding: 0;
+}
+
+/* Disable sliding effects for direct-text */
+.message[data-speaker="direct-text"],
+.message[data-speaker="direct-text"].selected,
+.message[data-speaker="direct-text"].speaking {
+  transform: none !important;
+  border: none;
+}
+
+/* Keep a hover effect for direct-text messages only */
+.message[data-speaker="direct-text"]:hover {
+  background-color: rgba(144, 144, 144, 0.08);
+} 
