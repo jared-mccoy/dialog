@@ -71,6 +71,17 @@ process.on('SIGINT', () => {
   process.exit(1);
 });
 
+// Get user's git identity
+function getGitIdentity() {
+  try {
+    const name = execSync('git config --get user.name').toString().trim();
+    const email = execSync('git config --get user.email').toString().trim();
+    return { name, email };
+  } catch (error) {
+    return null;
+  }
+}
+
 // Generate default commit message if none provided
 function getDefaultCommitMessage() {
   // Get current repository name from git or fallback to directory name
@@ -115,6 +126,15 @@ function getAllFiles(dirPath, arrayOfFiles = [], baseDir = dirPath) {
 }
 
 try {
+  // Get git identity from current repo
+  const gitIdentity = getGitIdentity();
+  if (!gitIdentity) {
+    console.error('Error: Git user identity not configured. Please run:');
+    console.error('  git config --global user.name "Your Name"');
+    console.error('  git config --global user.email "your.email@example.com"');
+    process.exit(1);
+  }
+  
   // Clone the repository
   console.log(`Cloning ${DIALOG_REPO_URL} to ${tempDir}...`);
   execSync(`git clone ${DIALOG_REPO_URL} "${tempDir}"`);
@@ -189,12 +209,18 @@ try {
       // Change to dialog repo directory
       process.chdir(tempDir);
       
+      // Configure git user identity for this repository
+      console.log('Configuring git user identity...');
+      execSync(`git config user.name "${gitIdentity.name}"`);
+      execSync(`git config user.email "${gitIdentity.email}"`);
+      
       // Stage all copied files
       filesToSync.forEach(file => {
         execSync(`git add "${file}"`);
       });
       
       // Commit changes
+      console.log('Committing changes...');
       execSync(`git commit -m "${finalCommitMsg}"`);
       
       console.log('Changes committed successfully!');
