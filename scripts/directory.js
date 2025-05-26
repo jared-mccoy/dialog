@@ -187,12 +187,39 @@ class ChatDirectoryScanner {
         const dateObj = {
           name: dirName,
           displayName: dirName,
-          files: files.map(file => ({
+          files: []
+        };
+        
+        // Process each file and try to extract title from content
+        for (const file of files) {
+          // Default title is the filename without extension
+          let title = file.name.replace('.md', '');
+          
+          try {
+            // Fetch the file content to extract H1 title
+            const fileUrl = `${baseUrl}/${file.path}`;
+            const fileResponse = await fetch(fileUrl);
+            
+            if (fileResponse.ok) {
+              const fileContent = await fileResponse.text();
+              // Extract the first H1 header as title
+              const titleMatch = fileContent.match(/^#\s+(.+)$/m);
+              if (titleMatch) {
+                title = titleMatch[1].trim();
+                logMsg(`Extracted title "${title}" from ${file.path}`);
+              }
+            }
+          } catch (e) {
+            logMsg(`Could not extract title from ${file.path}: ${e.message}`);
+            // Keep the default title if extraction fails
+          }
+          
+          dateObj.files.push({
             path: file.path,
             name: file.name,
-            title: file.name.replace('.md', '')
-          }))
-        };
+            title: title
+          });
+        }
         
         this.dates.push(dateObj);
         this.chats.push(...dateObj.files);

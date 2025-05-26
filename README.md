@@ -1,128 +1,180 @@
-# Machine Yearning
+# Dialog
 
-A GitHub Pages template for rendering Markdown conversation files as a chat interface.
+A platform for creating dialogical experiences that showcase the interplay between humans and AI. Dialog moves beyond traditional chat interfaces to create a thoughtful, speech-paced experience that encourages deeper engagement.
 
-## Features
+## Philosophy
 
-- Automatically lists all conversations organized by date
-- Renders Markdown files as a chat interface
-- Supports code syntax highlighting
-- Responsive design with dark mode support
-- Custom message layout positioning
-- Works with GitHub Pages' Jekyll integration
+Dialog was born from a desire to get away from the expected Android/iOS chat style and create something simple, vaguely retro, and highly customizable. The goal is to highlight the back-and-forth dialogue that takes place between user and agent—a critical aspect of prompt engineering that is often omitted in discussions about AI.
 
-## Setup
+By presenting conversations as curated dialogues, Dialog allows you to polish interactions into experiences that encourage readers to follow at the speed of thought and speech, rather than engaging in what N. Katherine Hayles calls "hyper reading"—the rapid, scanning-based reading we've grown accustomed to online.
 
+## Examples
 
+See Dialog in action:
+- [Machine Yearning](https://jared-mccoy.github.io/machine-yearning/index.html) - An example blog created with Dialog
 
-### Option 1: Using Jekyll (recommended)
+## Purpose
 
-1. Remove the `.nojekyll` file from your repository if it exists
-2. Enable GitHub Pages for your repository with Jekyll processing
-   - Go to Settings > Pages
-   - Select the branch you want to deploy from (usually `main` or `master`)
-   - Select the "/ (root)" folder for the site source
-   - Save the settings
+Dialog allows you to:
 
-3. Your site will be available at `https://[your-username].github.io/[repository-name]/`
+- Create a dialogical blog from markdown conversation files
+- Showcase the iterative nature of human-AI interaction
+- Publish your conversations as a GitHub Pages site
+- Customize the appearance and pacing to suit your aesthetic preferences
+- Focus on the content of the dialogue rather than the interface
 
-### Option 2: Without Jekyll (static HTML)
+## Getting Started
 
-If you're having issues with Jekyll processing:
+### Quick Setup
 
-1. Include the `.nojekyll` file in your repository
-2. Update links in the HTML files to use relative paths instead of Jekyll variables
-3. The site will be served as static HTML without Jekyll processing
+1. Fork this repository
+2. Enable GitHub Pages in your repository settings
+3. Add your conversation files to the `content` directory
+4. Your site will be available at `https://[your-username].github.io/[your-repository-name]/`
 
-## Adding New Conversations
+### Creating Conversations
 
-1. Create a directory with a date format: `YYYY.MM.DD`
-2. Add your Markdown conversation files inside that directory
-3. Format your conversations using speaker tags:
+Conversations are stored as Markdown files in date-formatted directories. Format your dialogues using speaker tags:
 
 ```markdown
 << USER >>
 User's message goes here
 
-<< ASSISTANT >>
-Assistant's response goes here
+<< AGENT >>
+Agent's response goes here
 ```
 
-4. The files will be automatically listed on the homepage
+## Structure
 
-### Message Layout Customization
+Dialog uses a structured approach to conversation rendering:
 
-You can customize message layout and positioning using layout tags:
+### Markdown Headings as Collapsible Sections
+
+Markdown headings automatically create collapsible sections, allowing you to organize conversations into logical segments:
 
 ```markdown
-<< USER {L} >>
-This message will align to the left side of the page
+# Main Topic
 
-<< ASSISTANT {R} >>
-This message will align to the right side of the page
+<< USER >>
+First question about the main topic
 
-<< USER {L.25} >>
-This message will be offset 25% from the left side
+<< AGENT >>
+First response about the main topic
 
-<< ASSISTANT {R.4} >>
-This message will be offset 40% from the right side
+## Subtopic
+
+<< USER >>
+Question about the subtopic
+
+<< AGENT >>
+Response about the subtopic
 ```
 
-Layout options:
-- `{L}` - Left align (default for assistant/non-user messages)
-- `{R}` - Right align (default for user messages)
-- `{L.XX}` - Left align with XX% offset from left (e.g., L.25, L.4, L.75)
-- `{R.XX}` - Right align with XX% offset from right (e.g., R.25, R.4, R.75)
+### Content Types
 
-The layout setting applies to all subsequent messages from the same speaker until a new layout tag is specified.
+Dialog supports different content types within your conversations:
 
-## Troubleshooting
+1. **Chat Elements** - Standard exchange between speakers using `<< SPEAKER >>` tags
+2. **Plain Text** - Empty speaker tags `<<>>` can be used for narrative or contextual text
 
-If your site shows nested HTML or doesn't render correctly:
-
-1. Make sure your HTML files don't contain duplicate HTML, head, or body tags when using Jekyll
-2. Try toggling between using Jekyll (remove `.nojekyll`) or static HTML (include `.nojekyll`)
-3. Check the GitHub Pages build logs for any errors
-
-## Customization
-
-- Modify `chat-style.css` to change the appearance
-- Edit `_config.yml` to change site settings (if using Jekyll)
-- Adjust the templates in `index.html` and `chat-viewer.html`
-
-## Local Development
-
-1. Install Jekyll and Bundler:
-   ```
-   gem install jekyll bundler
-   ```
-
-2. Create a `Gemfile` with:
-   ```
-   source 'https://rubygems.org'
-   gem 'github-pages', group: :jekyll_plugins
-   ```
-
-3. Run `bundle install`
-
-4. Start the local server:
-   ```
-   bundle exec jekyll serve
-   ```
-
-5. View your site at `http://localhost:4000`
-
-## Legacy Format Support
-
-The system also supports the older format for backward compatibility:
+Example of plain text with empty tags:
 
 ```markdown
-<<USER>>
-User's message goes here
+## Scene 1
 
-<<ASSISTANT>>
-Assistant's response goes here
+<<>>
+Enter [from separate directions] [[Bernardo]] and [[Francisco]], two sentinels
+
+<<BERNARDO>>
+Who's there?
 ```
+
+### Message Layout
+
+By default, user messages align to the right and agent messages to the left. Dialog supports custom positioning with layout tags to create more dynamic conversations.
+
+For details on message positioning options, see the [Message Positioning documentation](docs/message-positioning.md).
+
+## Icons
+
+### Default Speaker Icons
+
+Dialog maps icons to the two primary speaker types:
+
+- `<< USER >>` - Default user icon
+- `<< AGENT >>` - Default agent icon
+
+### Custom Speaker Icons
+
+You can define custom speakers with their own styling:
+
+```markdown
+<<BERNARDO>>
+Who's there?
+
+<<FRANCISCO>>
+Nay, answer me. Stand and unfold yourself.
+```
+
+## Tagging
+
+Dialog supports two simple tagging systems:
+
+### Backtick Tags
+
+Use backtick tags for technical terms and code elements:
+
+```markdown
+<< USER >>
+How can I use `async/await` in JavaScript?
+
+<< AGENT >>
+The `async/await` syntax makes asynchronous code easier to write.
+```
+
+### Wiki Links
+
+Use double-bracket wiki links for concepts and themes:
+
+```markdown
+<< USER >>
+How does [[reinforcement learning]] work?
+
+<< AGENT >>
+[[Reinforcement learning]] is based on reward mechanisms.
+```
+
+## Directory
+
+Dialog automatically generates a directory view of your conversations:
+
+- Conversations are organized by date
+- Each conversation shows its title and key tags
+- Tags from backticks and wiki links are accumulated and displayed
+- This provides a quick synopsis of each conversation's content
+- Users can browse conversations by concept rather than just chronologically
+
+The directory.js script extracts all backtick tags and wiki links from your markdown files to create this overview, making it easy to see what topics are covered in each conversation.
+
+## Settings
+
+Dialog offers numerous settings to customize your experience, including animation speeds, theme preferences, and behavior options.
+
+For a detailed explanation of available settings, see the [Settings documentation](docs/settings.md).
+
+## Advanced Topics
+
+For more detailed collaboration options:
+
+- [Collaboration Workflow](docs/collaboration.md) - Using the sync script to manage Dialog across repositories
+
+## Philosophy & Further Reading
+
+Dialog is inspired by dialogical traditions in philosophy and literature, as well as modern theories about how we read and process information in digital environments. For more on these topics:
+
+- N. Katherine Hayles on [hyper reading vs. deep attention](https://www.jstor.org/stable/10.1086/660376)
+- The role of dialogue in [philosophical traditions](https://plato.stanford.edu/entries/dialogue/)
+- [Prompt engineering as conversation](https://arxiv.org/abs/2302.11382)
 
 ## License
 
